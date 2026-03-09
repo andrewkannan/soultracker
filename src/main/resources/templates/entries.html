@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Entries - Bilingual Soul Tracker</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="icon" type="image/x-icon" href="/favicon.png">
+</head>
+
+<body>
+    <div class="glass-nav">
+        <h3 style="margin: 0; font-weight: 700; letter-spacing: -0.02em;">Bilingual Soul Tracker</h3>
+        <div>
+            <a th:href="@{/add}" class="btn" style="font-size: 0.85rem; padding: 0.5rem 1rem; margin-right: 1rem;">+
+                Record Interaction</a>
+            <a th:href="@{/}" class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.5rem 1rem;">Dashboard</a>
+        </div>
+    </div>
+
+    <div class="container" style="max-width: 1400px; overflow-x: auto;">
+        <div
+            style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+            <h2 style="color: var(--text-main); margin: 0;">Interaction Ledger</h2>
+
+            <!-- Filter Bar and Search Box -->
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+                <input type="text" id="searchBox" class="btn-secondary"
+                    style="padding: 0.5rem; width: auto; font-size: 0.85rem; border-radius: 8px;"
+                    placeholder="Search entries..." onkeyup="filterTable()">
+                <div>
+                    <select id="filterStatus" class="btn-secondary"
+                        style="padding: 0.5rem; text-transform: capitalize; width: auto; font-size: 0.85rem;"
+                        onchange="filterTable()">
+                        <option value="ALL">All Statuses</option>
+                        <option th:each="state : ${T(com.outreach.soultracker.entity.SoulStatus).values()}"
+                            th:value="${state}" th:text="${state}"></option>
+                    </select>
+                </div>
+                <div>
+                    <select id="filterAssignee" class="btn-secondary"
+                        style="padding: 0.5rem; width: auto; font-size: 0.85rem;" onchange="filterTable()">
+                        <option value="ALL">All Assignees</option>
+                        <option th:each="user : ${allUsers}" th:value="${user.fullName}" th:text="${user.fullName}">
+                        </option>
+                    </select>
+                </div>
+                <div>
+                    <select id="filterBranch" class="btn-secondary"
+                        style="padding: 0.5rem; width: auto; font-size: 0.85rem;" onchange="filterTable()">
+                        <option value="ALL">All Branches</option>
+                        <option th:each="branchStr : ${allBranches}" th:value="${branchStr}" th:text="${branchStr}">
+                        </option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-table-container">
+            <table id="ledgerTable">
+                <thead>
+                    <tr>
+                        <th onclick="sortTable(0)" style="cursor: pointer;">
+                            <div class="th-content">ID <span>&#x21D5;</span></div>
+                        </th>
+                        <th onclick="sortTable(1)" style="cursor: pointer;" class="hide-mobile">
+                            <div class="th-content">Pri <span>&#x21D5;</span></div>
+                        </th>
+                        <th onclick="sortTable(2)" style="cursor: pointer;">
+                            <div class="th-content">Status <span>&#x21D5;</span></div>
+                        </th>
+                        <th onclick="sortTable(3)" style="cursor: pointer;">
+                            <div class="th-content">Name <span>&#x21D5;</span></div>
+                        </th>
+                        <th onclick="sortTable(4)" style="cursor: pointer;" class="hide-mobile">
+                            <div class="th-content">Next Action <span>&#x21D5;</span></div>
+                        </th>
+                        <th onclick="sortTable(5)" style="cursor: pointer;" class="hide-mobile">
+                            <div class="th-content">Assigned To <span>&#x21D5;</span></div>
+                        </th>
+                        <th onclick="sortTable(6)" style="cursor: pointer;" class="hide-mobile">
+                            <div class="th-content">Created By <span>&#x21D5;</span></div>
+                        </th>
+                        <th onclick="sortTable(7)" style="cursor: pointer;" class="hide-mobile">
+                            <div class="th-content">Branch <span>&#x21D5;</span></div>
+                        </th>
+                        <th onclick="sortTable(8)" style="cursor: pointer;" class="hide-mobile">
+                            <div class="th-content">Date <span>&#x21D5;</span></div>
+                        </th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <th:block th:each="soul : ${souls}">
+                        <tr th:classappend="${soul.isPriority} ? 'row-priority' : ''" class="ledger-row"
+                            th:data-status="${soul.status}"
+                            th:data-assignee="${soul.assignedTo != null ? soul.assignedTo.fullName : 'Unassigned'}"
+                            th:data-branch="${soul.createdBy != null ? soul.createdBy.branch : 'System'}">
+
+                            <td th:text="${soul.id}">1</td>
+                            <td class="hide-mobile">
+                                <span th:if="${soul.isPriority}"
+                                    style="color: #FFD700; font-size: 1.2rem;">&#9733;</span>
+                            </td>
+                            <td>
+                                <span
+                                    th:class="'status-pill status-' + ${#strings.toLowerCase(#strings.replace(soul.status, '_', '-'))}"
+                                    th:text="${soul.status}">NEW</span>
+                            </td>
+                            <td style="font-weight: 500; color: var(--text-main);">
+                                <span th:text="${soul.name}">John Doe</span>
+                                <br />
+                                <div style="display: flex; gap: 0.3rem; margin-top: 0.3rem;" class="hide-mobile">
+                                    <span th:if="${soul.isHealed}"
+                                        style="background: rgba(255,255,255,0.1); font-size: 0.7rem; padding: 2px 6px; border-radius: 8px;">Healed</span>
+                                    <span th:if="${soul.isPrayed}"
+                                        style="background: rgba(255,255,255,0.1); font-size: 0.7rem; padding: 2px 6px; border-radius: 8px;">Prayed</span>
+                                    <span th:if="${soul.isBaptized}"
+                                        style="background: rgba(255,255,255,0.1); font-size: 0.7rem; padding: 2px 6px; border-radius: 8px;">Baptized</span>
+                                </div>
+                            </td>
+                            <td class="hide-mobile" th:text="${soul.nextAction != null ? soul.nextAction : '-'}">-</td>
+                            <td class="hide-mobile"
+                                th:text="${soul.assignedTo != null ? soul.assignedTo.fullName : 'Unassigned'}">User</td>
+                            <td class="hide-mobile"
+                                th:text="${soul.createdBy != null ? soul.createdBy.fullName : 'System'}">System</td>
+                            <td class="hide-mobile"
+                                th:text="${soul.createdBy != null ? soul.createdBy.branch : 'System'}">Branch</td>
+                            <td class="hide-mobile" th:text="${#temporals.format(soul.timestamp, 'MM/dd/yy HH:mm')}">
+                                Date</td>
+
+                            <td>
+                                <a th:href="@{/edit/{id}(id=${soul.id})}" class="btn btn-secondary"
+                                    style="font-size: 0.75rem; padding: 0.4rem 0.8rem;">Edit</a>
+                                <button class="accordion-toggle" onclick="toggleAccordion(this)"
+                                    type="button">&#x25BC;</button>
+                            </td>
+                        </tr>
+                        <!-- Mobile Accordion Row -->
+                        <tr class="accordion-content">
+                            <td colspan="9" style="background: rgba(0,0,0,0.2); padding: 1rem;">
+                                <div
+                                    style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-size: 0.9rem;">
+                                    <div><strong>Priority:</strong> <span
+                                            th:text="${soul.isPriority ? 'Yes' : 'No'}"></span></div>
+                                    <div><strong>Status:</strong> <span th:text="${soul.status}"></span></div>
+                                    <div><strong>Next Action:</strong> <span th:text="${soul.nextAction}"></span></div>
+                                    <div><strong>Assigned To:</strong> <span
+                                            th:text="${soul.assignedTo != null ? soul.assignedTo.fullName : 'Unassigned'}"></span>
+                                    </div>
+                                    <div><strong>Created By:</strong> <span
+                                            th:text="${soul.createdBy != null ? soul.createdBy.fullName : 'System'}"></span>
+                                    </div>
+                                    <div><strong>Branch:</strong> <span
+                                            th:text="${soul.createdBy != null ? soul.createdBy.branch : 'System'}"></span>
+                                    </div>
+                                    <div><strong>Date:</strong> <span
+                                            th:text="${#temporals.format(soul.timestamp, 'MMM dd, yyyy HH:mm')}"></span>
+                                    </div>
+                                    <div style="grid-column: span 2;">
+                                        <strong>Tags:</strong>
+                                        <span th:if="${soul.isHealed}">Healed, </span>
+                                        <span th:if="${soul.isPrayed}">Prayed, </span>
+                                        <span th:if="${soul.isBaptized}">Baptized</span>
+                                    </div>
+                                    <div style="grid-column: span 2;"><strong>Location:</strong> <span
+                                            th:text="${soul.location}"></span></div>
+                                    <div style="grid-column: span 2;"><strong>Testimony:</strong> <br /><span
+                                            th:text="${soul.testimony}"></span></div>
+                                </div>
+                            </td>
+                        </tr>
+                    </th:block>
+
+                    <tr th:if="${#lists.isEmpty(souls)}">
+                        <td colspan="10" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                            No interaction entries found in the ledger.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        // Mobile Accordion Logic
+        function toggleAccordion(btn) {
+            const tr = btn.closest('.ledger-row');
+            const accordionRow = tr.nextElementSibling;
+            if (accordionRow.classList.contains('expanded')) {
+                accordionRow.classList.remove('expanded');
+                btn.innerHTML = '&#x25BC;';
+            } else {
+                // close others potentially
+                document.querySelectorAll('.accordion-content.expanded').forEach(el => {
+                    el.classList.remove('expanded');
+                    el.previousElementSibling.querySelector('.accordion-toggle').innerHTML = '&#x25BC;';
+                });
+                accordionRow.classList.add('expanded');
+                btn.innerHTML = '&#x25B2;';
+            }
+        }
+
+        // Filtering Logic
+        function filterTable() {
+            const statusFilter = document.getElementById('filterStatus').value;
+            const assigneeFilter = document.getElementById('filterAssignee').value;
+            const branchFilter = document.getElementById('filterBranch').value;
+            const searchQuery = document.getElementById('searchBox').value.toLowerCase();
+
+            const rows = document.querySelectorAll('.ledger-row');
+            rows.forEach(row => {
+                const status = row.getAttribute('data-status');
+                const assignee = row.getAttribute('data-assignee');
+                const branch = row.getAttribute('data-branch');
+                const rowText = row.innerText.toLowerCase();
+
+                const matchStatus = (statusFilter === 'ALL' || status === statusFilter);
+                const matchAssignee = (assigneeFilter === 'ALL' || assignee === assigneeFilter);
+                const matchBranch = (branchFilter === 'ALL' || branch === branchFilter);
+                const matchSearch = (searchQuery === '' || rowText.includes(searchQuery));
+
+                if (matchStatus && matchAssignee && matchBranch && matchSearch) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                    // also hide its accordion if open
+                    if (row.nextElementSibling && row.nextElementSibling.classList.contains('accordion-content')) {
+                        row.nextElementSibling.classList.remove('expanded');
+                        row.querySelector('.accordion-toggle').innerHTML = '&#x25BC;';
+                    }
+                }
+            });
+        }
+
+        // Sorting Logic
+        let sortDesc = false;
+        function sortTable(columnIndex) {
+            const table = document.getElementById("ledgerTable");
+            let rows, switching, i, x, y, shouldSwitch;
+            switching = true;
+            sortDesc = !sortDesc;
+
+            while (switching) {
+                switching = false;
+                // Group the rows by pair (main + accordion) to sort them together
+                const tbody = table.querySelector("tbody");
+                rows = Array.from(tbody.querySelectorAll(".ledger-row"));
+
+                for (i = 0; i < (rows.length - 1); i++) {
+                    shouldSwitch = false;
+                    x = rows[i].getElementsByTagName("TD")[columnIndex];
+                    y = rows[i + 1].getElementsByTagName("TD")[columnIndex];
+
+                    let valX = x.innerText.toLowerCase();
+                    let valY = y.innerText.toLowerCase();
+
+                    // If sorting by ID (column 0), treat as numbers
+                    if (columnIndex === 0) {
+                        valX = parseFloat(valX) || 0;
+                        valY = parseFloat(valY) || 0;
+                    }
+
+                    if (sortDesc) {
+                        if (valX < valY) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else {
+                        if (valX > valY) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (shouldSwitch) {
+                    // move the row AND its accordion twin
+                    const accordionToMove = rows[i].nextElementSibling;
+                    const referenceNode = rows[i + 1].nextElementSibling ? rows[i + 1].nextElementSibling.nextSibling : null;
+
+                    tbody.insertBefore(rows[i], referenceNode);
+                    tbody.insertBefore(accordionToMove, referenceNode); // insert accordion after row
+                    switching = true;
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>

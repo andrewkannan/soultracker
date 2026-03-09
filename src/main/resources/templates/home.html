@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
+    xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bilingual Soul Tracker</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+
+    <!-- WebSocket libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <link rel="icon" type="image/x-icon" href="/favicon.png">
+</head>
+
+<body>
+    <div class="glass-nav">
+        <h3 style="margin: 0; font-weight: 700; letter-spacing: -0.02em;">Bilingual Soul Tracker</h3>
+
+        <!-- Signed In Profile -->
+        <div sec:authorize="isAuthenticated()" style="display: flex; align-items: center; gap: 1rem;">
+            <button onclick="togglePresentationMode()" class="btn btn-secondary"
+                style="padding: 0.5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center;"
+                title="Presentation Mode">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+                </svg>
+            </button>
+            <div class="user-profile" style="display: flex; align-items: center; gap: 0.5rem;">
+                <img th:if="${userAvatarUrl != null}" th:src="${userAvatarUrl}" alt="Avatar"
+                    style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.2);">
+                <div th:unless="${userAvatarUrl != null}"
+                    style="width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted);">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                </div>
+                <span class="user-greeting" th:text="${userFullName != null ? userFullName : 'Admin User'}">Admin
+                    User</span>
+                <div class="dropdown-content glass-panel"
+                    style="padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem; min-width: 180px;">
+                    <a th:href="@{/profile}" class="btn"
+                        style="width: 100%; font-size: 0.85rem; text-align: center; padding: 0.6rem;">My Account</a>
+                    <form th:action="@{/logout}" method="post" style="margin: 0;">
+                        <button type="submit" class="btn btn-secondary"
+                            style="width: 100%; font-size: 0.85rem; padding: 0.6rem;">Sign Out</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Signed Out Link -->
+        <div sec:authorize="!isAuthenticated()" style="display: flex; align-items: center; gap: 1rem;">
+            <button onclick="togglePresentationMode()" class="btn btn-secondary"
+                style="padding: 0.5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center;"
+                title="Presentation Mode">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+                </svg>
+            </button>
+            <a th:href="@{/login}" class="btn" style="font-size: 0.85rem; padding: 0.5rem 1rem;">Login</a>
+        </div>
+    </div>
+
+    <div class="container center-content">
+        <h2 style="margin-bottom: 0.5rem; z-index: 10;">Total Souls Reached</h2>
+
+        <div class="hero-counter-container" style="margin-top: 1.5rem;">
+            <div id="counter" class="massive-counter" th:text="${totalCount}">0</div>
+            <div id="plusOne" class="plus-one">+1</div>
+        </div>
+
+        <div class="stats-grid" style="margin-top: 2.5rem;">
+            <div class="stat-card" id="card-healed">
+                <div class="stat-icon" id="svg-healed">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                            d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z">
+                        </path>
+                    </svg>
+                </div>
+                <div id="healedCounter" class="stat-number tabular-nums" th:text="${healedCount}">0</div>
+                <div class="stat-label">Healed</div>
+            </div>
+
+            <div class="stat-card" id="card-prayed">
+                <div class="stat-icon" id="svg-prayed">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path>
+                        <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path>
+                        <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path>
+                        <path
+                            d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15">
+                        </path>
+                    </svg>
+                </div>
+                <div id="prayedCounter" class="stat-number tabular-nums" th:text="${prayedCount}">0</div>
+                <div class="stat-label">Prayed For</div>
+            </div>
+
+            <div class="stat-card" id="card-planted">
+                <div class="stat-icon" id="svg-planted">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 20v-5M9 11l3 3 3-3M9 7l3 3 3-3M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z"></path>
+                    </svg>
+                </div>
+                <div id="plantedCounter" class="stat-number tabular-nums" th:text="${plantedCount}">0</div>
+                <div class="stat-label">Planted in Church</div>
+            </div>
+
+            <div class="stat-card" id="card-baptized">
+                <div class="stat-icon" id="svg-baptized">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                            d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z">
+                        </path>
+                    </svg>
+                </div>
+                <div id="baptizedCounter" class="stat-number tabular-nums" th:text="${baptizedCount}">0</div>
+                <div class="stat-label">Baptized</div>
+            </div>
+        </div>
+
+        <div sec:authorize="isAuthenticated()" class="glass-panel" style="max-width: 600px; margin-top: 3rem;">
+            <h3 style="margin-bottom: 2rem;">Welcome Back</h3>
+            <div class="grid-2">
+                <a th:href="@{/add}" class="btn">Add New Soul</a>
+                <a th:href="@{/entries}" class="btn btn-secondary">Review Entries</a>
+                <a sec:authorize="hasAuthority('ROLE_ADMIN')" th:href="@{/users}" class="btn btn-secondary"
+                    style="grid-column: 1 / -1;">Manage Users</a>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        let stompClient = null;
+        let previousPayload = {
+            total: /*[[${totalCount}]]*/ 0,
+            healed: /*[[${healedCount}]]*/ 0,
+            prayed: /*[[${prayedCount}]]*/ 0,
+            baptized: /*[[${baptizedCount}]]*/ 0,
+            planted: /*[[${plantedCount}]]*/ 0
+        };
+
+        function connect() {
+            const socket = new SockJS('/ws');
+            stompClient = Stomp.over(socket);
+
+            // Disable debug logs for a cleaner console
+            stompClient.debug = null;
+
+            stompClient.connect({}, function (frame) {
+                console.log('Connected: ' + frame);
+                stompClient.subscribe('/topic/livescore', function (message) {
+                    const payload = JSON.parse(message.body);
+                    processPayload(payload);
+                });
+            }, function (error) {
+                console.error("STOMP error " + error);
+                // Attempt to reconnect after 5 seconds
+                setTimeout(connect, 5000);
+            });
+        }
+
+        function processPayload(payload) {
+            // Check diffs to trigger minimalist slide animations
+            if (payload.healed > previousPayload.healed) triggerSlideUpdate('svg-healed', 'healedCounter', payload.healed);
+            if (payload.prayed > previousPayload.prayed) triggerSlideUpdate('svg-prayed', 'prayedCounter', payload.prayed);
+            if (payload.baptized > previousPayload.baptized) triggerSlideUpdate('svg-baptized', 'baptizedCounter', payload.baptized);
+            if (payload.planted > previousPayload.planted) triggerSlideUpdate('svg-planted', 'plantedCounter', payload.planted);
+
+            // Total counter updates statically
+            if (payload.total > previousPayload.total) {
+                const counter = document.getElementById("counter");
+                const plusOne = document.getElementById("plusOne");
+                counter.innerText = payload.total;
+
+                counter.classList.remove("pulse");
+                plusOne.classList.remove("animate");
+                void counter.offsetWidth;
+                counter.classList.add("pulse");
+                plusOne.classList.add("animate");
+                setTimeout(() => counter.classList.remove("pulse"), 600);
+            }
+
+            previousPayload = payload;
+        }
+
+        function triggerSlideUpdate(svgId, counterId, newValue) {
+            const iconNode = document.getElementById(svgId);
+            const textNode = document.getElementById(counterId);
+
+            // 1. Trigger Icon scale pop
+            iconNode.classList.add('icon-pop');
+
+            // 2. Slide the text up and fade out
+            textNode.classList.add('slide-up');
+
+            // 3. Wait for the slide out animation halfway block
+            setTimeout(() => {
+                // Update text while invisible
+                textNode.innerText = newValue;
+
+                // Remove translation to snap back
+                textNode.classList.remove('slide-up');
+
+                // Allow the icon pop to settle
+                setTimeout(() => {
+                    iconNode.classList.remove('icon-pop');
+                }, 200);
+            }, 300); // Wait 300ms (matches the opacity 0.3s CSS transition)
+        }
+
+        function togglePresentationMode() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+                });
+                document.body.classList.add('presentation-active');
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                document.body.classList.remove('presentation-active');
+            }
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            connect();
+        });
+    </script>
+    <footer class="app-footer">Powered by CCC JB Bilingual</footer>
+</body>
+
+</html>

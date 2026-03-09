@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bilingual Soul Tracker - Login</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="icon" type="image/x-icon" href="/favicon.png">
+</head>
+
+<body>
+    <div class="glass-nav">
+        <h3 style="margin: 0; font-weight: 700; letter-spacing: -0.02em;">Bilingual Soul Tracker</h3>
+        <a th:href="@{/}" class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.5rem 1rem;">Back</a>
+    </div>
+
+    <div class="container center-content">
+        <div class="glass-panel" style="max-width: 400px; width: 100%;">
+            <h2 style="color: var(--text-main); margin-bottom: 1.5rem;">Secure Login</h2>
+
+            <div th:if="${param.error}" style="color: #ff3b30; margin-bottom: 1.5rem; font-size: 0.9rem;">
+                Invalid credentials. Please try again.
+            </div>
+            <div th:if="${param.logout}" style="color: #34c759; margin-bottom: 1.5rem; font-size: 0.9rem;">
+                You have been securely logged out.
+            </div>
+
+            <form th:action="@{/login}" method="post">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" name="username" required="required" placeholder="Enter your username" />
+                </div>
+                <div class="form-group" style="margin-bottom: 2rem;">
+                    <label>Password</label>
+                    <input type="password" name="password" required="required" placeholder="Enter your password" />
+                </div>
+                <button type="submit" class="btn" style="width: 100%;"
+                    onclick="if(navigator.vibrate) navigator.vibrate(20);">Access Portal</button>
+            </form>
+        </div>
+    </div>
+    <footer class="app-footer">Powered by CCC JB Bilingual</footer>
+</body>
+
+</html>

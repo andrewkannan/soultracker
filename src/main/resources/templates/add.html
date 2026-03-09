@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Soul - Bilingual Soul Tracker</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="icon" type="image/x-icon" href="/favicon.png">
+</head>
+
+<body>
+    <div class="glass-nav">
+        <h3 style="margin: 0; font-weight: 700; letter-spacing: -0.02em;">Bilingual Soul Tracker</h3>
+        <a th:href="@{/}" class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.5rem 1rem;">Dashboard</a>
+    </div>
+
+    <div class="container">
+        <h2
+            style="color: var(--text-main); margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto; text-align: center;">
+            Record an Interaction</h2>
+
+        <div class="glass-panel" style="max-width: 600px; margin: 0 auto;">
+            <form id="soulForm" th:action="@{/add}" th:object="${soul}" method="post">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <h3 style="margin: 0;">Entry Details</h3>
+                    <input type="hidden" th:field="*{isPriority}" id="isPriorityInput" />
+                    <button type="button" class="priority-btn" id="priorityBtn"
+                        title="Mark as Priority">&#9733;</button>
+                </div>
+
+                <!-- Hidden inputs for boolean toggle chips -->
+                <input type="hidden" th:field="*{isHealed}" id="isHealedInput" />
+                <input type="hidden" th:field="*{isPrayed}" id="isPrayedInput" />
+                <input type="hidden" th:field="*{isBaptized}" id="isBaptizedInput" />
+                <input type="hidden" th:field="*{isPlanted}" id="isPlantedInput" />
+
+                <!-- Visual iOS Toggle Chips -->
+                <div class="chip-container">
+                    <div class="chip-toggle" data-target="isHealedInput">Healed</div>
+                    <div class="chip-toggle" data-target="isPrayedInput">Prayed For</div>
+                    <div class="chip-toggle" data-target="isBaptizedInput">Baptized</div>
+                    <div class="chip-toggle" data-target="isPlantedInput">Planted in Church</div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" th:field="*{name}" required="required"
+                            placeholder="Who did you speak with?" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Location</label>
+                        <input type="text" th:field="*{location}" required="required"
+                            placeholder="Where did this happen?" />
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Phone Number (Optional)</label>
+                        <input type="text" th:field="*{phoneNumber}" placeholder="Contact info" />
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 2.5rem;">
+                    <label>Testimony</label>
+                    <textarea th:field="*{testimony}" required="required" rows="4"
+                        placeholder="Share briefly what happened..."></textarea>
+                </div>
+
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="btn" style="flex: 2;"
+                        onclick="if(navigator.vibrate) navigator.vibrate(20);">Submit Record</button>
+                    <a th:href="@{/}" class="btn btn-secondary" style="flex: 1; text-align: center;">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script th:inline="javascript">
+        // Sync JS toggle chips with hidden thymeleaf boolean inputs
+        document.querySelectorAll('.chip-toggle').forEach(chip => {
+            chip.addEventListener('click', function () {
+                this.classList.toggle('active');
+                const targetId = this.getAttribute('data-target');
+                const hiddenInput = document.getElementById(targetId);
+                // Toggle the boolean string value
+                if (hiddenInput) {
+                    hiddenInput.value = this.classList.contains('active') ? 'true' : 'false';
+                }
+            });
+        });
+
+        // Sync Priority Star
+        const priorityBtn = document.getElementById('priorityBtn');
+        const priorityInput = document.getElementById('isPriorityInput');
+
+        priorityBtn.addEventListener('click', function () {
+            this.classList.toggle('active');
+            if (priorityInput) {
+                priorityInput.value = this.classList.contains('active') ? 'true' : 'false';
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -68,6 +68,16 @@
     </div>
 
     <div class="container center-content">
+        <div sec:authorize="isAuthenticated()" class="glass-panel" style="max-width: 600px; margin-bottom: 3rem;">
+            <h3 style="margin-bottom: 2rem;">Welcome Back</h3>
+            <div class="grid-2">
+                <a th:href="@{/add}" class="btn">Add New Soul</a>
+                <a th:href="@{/entries}" class="btn btn-secondary">Review Entries</a>
+                <a sec:authorize="hasAuthority('ROLE_ADMIN')" th:href="@{/users}" class="btn btn-secondary"
+                    style="grid-column: 1 / -1;">Manage Users</a>
+            </div>
+        </div>
+
         <h2 style="margin-bottom: 0.5rem; z-index: 10;">Total Souls Reached</h2>
 
         <div class="hero-counter-container" style="margin-top: 1.5rem;">
@@ -127,16 +137,6 @@
                 </div>
                 <div id="baptizedCounter" class="stat-number tabular-nums" th:text="${baptizedCount}">0</div>
                 <div class="stat-label">Baptized</div>
-            </div>
-        </div>
-
-        <div sec:authorize="isAuthenticated()" class="glass-panel" style="max-width: 600px; margin-top: 3rem;">
-            <h3 style="margin-bottom: 2rem;">Welcome Back</h3>
-            <div class="grid-2">
-                <a th:href="@{/add}" class="btn">Add New Soul</a>
-                <a th:href="@{/entries}" class="btn btn-secondary">Review Entries</a>
-                <a sec:authorize="hasAuthority('ROLE_ADMIN')" th:href="@{/users}" class="btn btn-secondary"
-                    style="grid-column: 1 / -1;">Manage Users</a>
             </div>
         </div>
     </div>

@@ -19,7 +19,7 @@
         <h3 style="margin: 0; font-weight: 700; letter-spacing: -0.02em;">Bilingual Soul Tracker</h3>
 
         <!-- Signed In Profile -->
-        <div sec:authorize="isAuthenticated()" style="display: flex; align-items: center; gap: 1rem;">
+        <div sec:authorize="isAuthenticated()" class="nav-links">
             <button onclick="togglePresentationMode()" class="btn btn-secondary"
                 style="padding: 0.5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center;"
                 title="Presentation Mode">
@@ -54,7 +54,7 @@
         </div>
 
         <!-- Signed Out Link -->
-        <div sec:authorize="!isAuthenticated()" style="display: flex; align-items: center; gap: 1rem;">
+        <div sec:authorize="!isAuthenticated()" class="nav-links">
             <button onclick="togglePresentationMode()" class="btn btn-secondary"
                 style="padding: 0.5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center;"
                 title="Presentation Mode">

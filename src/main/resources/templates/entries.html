@@ -12,26 +12,22 @@
 <body>
     <div class="glass-nav">
         <h3 style="margin: 0; font-weight: 700; letter-spacing: -0.02em;">Bilingual Soul Tracker</h3>
-        <div>
-            <a th:href="@{/add}" class="btn" style="font-size: 0.85rem; padding: 0.5rem 1rem; margin-right: 1rem;">+
-                Record Interaction</a>
-            <a th:href="@{/}" class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.5rem 1rem;">Dashboard</a>
+        <div class="nav-links">
+            <a th:href="@{/add}" class="btn">+ Interaction</a>
+            <a th:href="@{/}" class="btn btn-secondary">Dashboard</a>
         </div>
     </div>
 
     <div class="container" style="max-width: 1400px; overflow-x: auto;">
-        <div
-            style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <div class="filter-container">
             <h2 style="color: var(--text-main); margin: 0;">Interaction Ledger</h2>
 
             <!-- Filter Bar and Search Box -->
-            <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
-                <input type="text" id="searchBox" class="btn-secondary"
-                    style="padding: 0.5rem; width: auto; font-size: 0.85rem; border-radius: 8px;"
-                    placeholder="Search entries..." onkeyup="filterTable()">
+            <div class="filter-controls">
+                <input type="text" id="searchBox" class="btn-secondary" placeholder="Search entries..."
+                    onkeyup="filterTable()">
                 <div>
-                    <select id="filterStatus" class="btn-secondary"
-                        style="padding: 0.5rem; text-transform: capitalize; width: auto; font-size: 0.85rem;"
+                    <select id="filterStatus" class="btn-secondary" style="text-transform: capitalize;"
                         onchange="filterTable()">
                         <option value="ALL">All Statuses</option>
                         <option th:each="state : ${T(com.outreach.soultracker.entity.SoulStatus).values()}"
@@ -39,16 +35,14 @@
                     </select>
                 </div>
                 <div>
-                    <select id="filterAssignee" class="btn-secondary"
-                        style="padding: 0.5rem; width: auto; font-size: 0.85rem;" onchange="filterTable()">
+                    <select id="filterAssignee" class="btn-secondary" onchange="filterTable()">
                         <option value="ALL">All Assignees</option>
                         <option th:each="user : ${allUsers}" th:value="${user.fullName}" th:text="${user.fullName}">
                         </option>
                     </select>
                 </div>
                 <div>
-                    <select id="filterBranch" class="btn-secondary"
-                        style="padding: 0.5rem; width: auto; font-size: 0.85rem;" onchange="filterTable()">
+                    <select id="filterBranch" class="btn-secondary" onchange="filterTable()">
                         <option value="ALL">All Branches</option>
                         <option th:each="branchStr : ${allBranches}" th:value="${branchStr}" th:text="${branchStr}">
                         </option>

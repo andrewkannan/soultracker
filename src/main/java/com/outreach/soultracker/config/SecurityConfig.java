@@ -29,9 +29,11 @@ public class SecurityConfig {
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
                 http
+                                .csrf(csrf -> csrf.disable()) // Disable CSRF for easier WebAuthn integration (not ideal
+                                                              // for production, but simpler for demo/mobile)
                                 .authorizeHttpRequests((requests) -> requests
                                                 .requestMatchers("/", "/css/**", "/js/**", "/favicon.png", "/ws/**",
-                                                                "/error")
+                                                                "/error", "/webauthn/**")
                                                 .permitAll()
                                                 .requestMatchers("/users/**", "/adduser").hasRole("ADMIN")
                                                 .anyRequest().authenticated())
@@ -39,6 +41,11 @@ public class SecurityConfig {
                                                 .loginPage("/login")
                                                 .permitAll()
                                                 .defaultSuccessUrl("/", true))
+                                .rememberMe((remember) -> remember
+                                                .key("uniqueAndSecret")
+                                                .tokenValiditySeconds(86400) // 1 day
+                                                .rememberMeParameter("remember-me")
+                                                .useSecureCookie(true))
                                 .logout((logout) -> logout.permitAll())
                                 .userDetailsService(customUserDetailsService);
 

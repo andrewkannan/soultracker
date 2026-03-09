@@ -5,6 +5,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Column;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.CascadeType;
+import java.util.List;
+import java.util.ArrayList;
 
 @Entity
 public class AppUser {
@@ -33,6 +37,9 @@ public class AppUser {
     private Integer totalBaptized = 0;
     private Integer totalPrayedFor = 0;
     private Integer totalPlanted = 0;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Authenticator> authenticators = new ArrayList<>();
 
     public AppUser() {
     }
@@ -150,5 +157,13 @@ public class AppUser {
 
     public void setTotalPlanted(Integer totalPlanted) {
         this.totalPlanted = totalPlanted;
+    }
+
+    public List<Authenticator> getAuthenticators() {
+        return authenticators;
+    }
+
+    public void setAuthenticators(List<Authenticator> authenticators) {
+        this.authenticators = authenticators;
     }
 }

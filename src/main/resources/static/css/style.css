@@ -279,6 +279,34 @@ a:hover {
   }
 }
 
+.btn-biometric {
+  background: transparent;
+  color: var(--text-main);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  padding: 0.8rem 1.5rem;
+  border-radius: 980px;
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  margin-top: 1rem;
+  transition: all 0.2s ease;
+}
+
+.btn-biometric:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.8);
+}
+
+.btn-biometric svg {
+  width: 20px;
+  height: 20px;
+}
+
 /* Forms */
 .form-group {
   margin-bottom: 1.5rem;

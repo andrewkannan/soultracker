@@ -26,20 +26,113 @@
                 You have been securely logged out.
             </div>
 
-            <form th:action="@{/login}" method="post">
+            <form th:action="@{/login}" method="post" id="loginForm">
                 <div class="form-group">
                     <label>Username</label>
-                    <input type="text" name="username" required="required" placeholder="Enter your username" />
+                    <input type="text" name="username" id="username" required="required"
+                        placeholder="Enter your username" />
                 </div>
-                <div class="form-group" style="margin-bottom: 2rem;">
+                <div class="form-group">
                     <label>Password</label>
-                    <input type="password" name="password" required="required" placeholder="Enter your password" />
+                    <input type="password" name="password" id="password" required="required"
+                        placeholder="Enter your password" />
                 </div>
+
+                <div class="form-group" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 2rem;">
+                    <input type="checkbox" name="remember-me" id="remember-me" style="width: auto;">
+                    <label for="remember-me" style="margin-bottom: 0; cursor: pointer;">Stay logged in</label>
+                </div>
+
                 <button type="submit" class="btn" style="width: 100%;"
                     onclick="if(navigator.vibrate) navigator.vibrate(20);">Access Portal</button>
             </form>
+
+            <div style="margin: 1.5rem 0; display: flex; align-items: center; gap: 1rem;">
+                <div style="flex: 1; height: 1px; background: var(--glass-border);"></div>
+                <span style="color: var(--text-muted); font-size: 0.8rem;">OR</span>
+                <div style="flex: 1; height: 1px; background: var(--glass-border);"></div>
+            </div>
+
+            <button type="button" id="biometricLoginBtn" class="btn-biometric">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z" />
+                    <path d="M12 7v5l3 3" />
+                </svg>
+                Biometric Login
+            </button>
         </div>
     </div>
+    <script th:inline="javascript">
+        // Basic WebAuthn Login Trigger
+        document.getElementById('biometricLoginBtn').addEventListener('click', async () => {
+            if (!window.PublicKeyCredential) {
+                alert("Biometric login is not supported on this browser.");
+                return;
+            }
+
+            const username = document.getElementById('username').value;
+            if (!username) {
+                alert("Please enter your username first to use biometric login.");
+                return;
+            }
+
+            try {
+                // 1. Get Authentication Options from Server
+                const resp = await fetch(`/webauthn/login/options?username=${encodeURIComponent(username)}`);
+                if (!resp.ok) throw new Error("Could not fetch login options");
+                const options = await resp.json();
+
+                // Convert base64url to Uint8Array
+                const challengeBytes = Uint8Array.from(atob(options.challenge), c => c.charCodeAt(0));
+
+                const credentialOptions = {
+                    publicKey: {
+                        ...options,
+                        challenge: challengeBytes,
+                        allowCredentials: options.allowCredentials.map(c => ({
+                            ...c,
+                            id: Uint8Array.from(atob(c.id), x => x.charCodeAt(0))
+                        }))
+                    }
+                };
+
+                // 2. Trigger Browser Biometric Prompt
+                const assertion = await navigator.credentials.get(credentialOptions);
+
+                // 3. Send Assertion back to Server
+                const verifyResp = await fetch('/webauthn/login/finish', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: assertion.id,
+                        rawId: btoa(String.fromCharCode(...new Uint8Array(assertion.rawId))),
+                        response: {
+                            clientDataJSON: btoa(String.fromCharCode(...new Uint8Array(assertion.response.clientDataJSON))),
+                            authenticatorData: btoa(String.fromCharCode(...new Uint8Array(assertion.response.authenticatorData))),
+                            signature: btoa(String.fromCharCode(...new Uint8Array(assertion.response.signature))),
+                            userHandle: assertion.response.userHandle ? btoa(String.fromCharCode(...new Uint8Array(assertion.response.userHandle))) : null
+                        },
+                        type: assertion.type,
+                        username: username
+                    })
+                });
+
+                if (verifyResp.ok) {
+                    window.location.href = "/";
+                } else {
+                    const errText = await verifyResp.text();
+                    alert("Biometric verification failed: " + errText);
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Biometric status: " + err.message);
+            }
+        });
+
+        // Trigger biometric automatically if keyboard is not active and session might exist?
+        // Actually, requirement 4: "Once they tap it, offer the Biometric to avoid the keyboard popping up."
+        // We can check if localstorage has a 'preferred_username' and pre-fill or trigger.
+    </script>
     <footer class="app-footer">Powered by CCC JB Bilingual</footer>
 </body>
 

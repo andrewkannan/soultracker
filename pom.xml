@@ -84,6 +84,11 @@
 			<artifactId>spring-boot-starter-webmvc-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.webauthn4j</groupId>
+			<artifactId>webauthn4j-core</artifactId>
+			<version>0.28.2.RELEASE</version>
+		</dependency>
 	</dependencies>
 
 	<build>

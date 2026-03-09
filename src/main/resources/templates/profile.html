@@ -89,6 +89,28 @@
                 </div>
             </div>
 
+            <!-- Security Settings Section -->
+            <div class="glass-panel">
+                <h3 style="margin-top: 0; margin-bottom: 1.5rem;">Security Settings</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">
+                    Link your account to your device's biometrics (FaceID, TouchID, or Android Biometrics) for
+                    high-speed login without a password.
+                </p>
+
+                <div id="biometricSuccess"
+                    style="display: none; background: rgba(48, 209, 88, 0.1); color: #30d158; padding: 0.8rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.85rem; border: 1px solid rgba(48, 209, 88, 0.2);">
+                    Biometric login enabled successfully!
+                </div>
+
+                <button type="button" id="enableBiometricBtn" class="btn-biometric" style="max-width: 300px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z" />
+                        <path d="M12 7v5l3 3" />
+                    </svg>
+                    Enable Biometric Login
+                </button>
+            </div>
+
             <!-- Mission Progress Section -->
             <div class="glass-panel">
                 <h3 style="margin-top: 0; margin-bottom: 1.5rem;">Mission Progress</h3>
@@ -612,6 +634,50 @@
                 window.location.reload();
             }
         });
+
+        // Biometric Registration Logic
+        const biometricBtn = document.getElementById('enableBiometricBtn');
+        if (biometricBtn) {
+            biometricBtn.addEventListener('click', async () => {
+                if (!window.PublicKeyCredential) {
+                    alert("Biometric authentication is not supported on this device/browser.");
+                    return;
+                }
+
+                try {
+                    const resp = await fetch('/webauthn/register/options', { method: 'POST' });
+                    if (!resp.ok) throw new Error("Could not fetch registration options");
+                    const options = await resp.json();
+
+                    // Convert base64url to Uint8Array
+                    options.challenge = Uint8Array.from(atob(options.challenge), c => c.charCodeAt(0));
+                    options.user.id = Uint8Array.from(atob(options.user.id), c => c.charCodeAt(0));
+
+                    const credential = await navigator.credentials.create({ publicKey: options });
+
+                    const finishResp = await fetch('/webauthn/register/finish', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            id: credential.id,
+                            publicKey: btoa(String.fromCharCode(...new Uint8Array(credential.response.getPublicKey()))),
+                            name: navigator.userAgent.split(' ')[0]
+                        })
+                    });
+
+                    if (finishResp.ok) {
+                        document.getElementById('biometricSuccess').style.display = 'block';
+                        if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+                    } else {
+                        const errText = await finishResp.text();
+                        alert("Registration failed: " + errText);
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert("Status: " + err.message);
+                }
+            });
+        }
 
     </script>
 </body>

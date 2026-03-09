@@ -190,6 +190,21 @@ a:hover {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 1rem;
+}
+
+@media (max-width: 600px) {
+  .glass-nav {
+    padding: 0.8rem 1rem;
+  }
+
+  .glass-nav h3 {
+    font-size: 1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+  }
 }
 
 /* Forms */
@@ -545,10 +560,22 @@ tr:last-child td {
   transition: opacity 0.3s var(--spring-easing), transform 0.3s var(--spring-easing);
 }
 
-.user-profile:hover .dropdown-content {
-  display: block;
+.user-profile:hover .dropdown-content,
+.user-profile.active .dropdown-content {
+  display: flex;
   opacity: 1;
   transform: translateY(0);
+}
+
+@media (max-width: 600px) {
+  .user-greeting {
+    display: none;
+  }
+
+  .dropdown-content {
+    right: -10px;
+    width: 200px;
+  }
 }
 
 /* Stats Grid */

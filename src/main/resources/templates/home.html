@@ -241,6 +241,22 @@
 
         document.addEventListener("DOMContentLoaded", function () {
             connect();
+
+            // Mobile Dropdown Toggle
+            const userProfile = document.querySelector('.user-profile');
+            if (userProfile) {
+                userProfile.addEventListener('click', function (e) {
+                    if (window.innerWidth <= 768) {
+                        e.stopPropagation();
+                        this.classList.toggle('active');
+                    }
+                });
+            }
+
+            // Close dropdown when clicking elsewhere
+            document.addEventListener('click', function () {
+                if (userProfile) userProfile.classList.remove('active');
+            });
         });
     </script>
     <footer class="app-footer">Powered by CCC JB Bilingual</footer>

@@ -31,6 +31,7 @@ public class AppUser {
     private String role;
 
     private String avatarUrl;
+    private boolean enabled = true;
 
     // Specialist Achievement Trackers
     private Integer totalHealed = 0;
@@ -165,5 +166,13 @@ public class AppUser {
 
     public void setAuthenticators(List<Authenticator> authenticators) {
         this.authenticators = authenticators;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 }

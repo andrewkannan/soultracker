@@ -31,6 +31,7 @@
                         <th>Email</th>
                         <th>Branch</th>
                         <th>Role</th>
+                        <th>Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -43,9 +44,15 @@
                         <td th:text="${user.branch}">JB</td>
                         <td th:text="${user.role}">ROLE_EVANGELIST</td>
                         <td>
+                            <span th:if="${user.enabled}" class="badge-success"
+                                style="background: rgba(48, 209, 88, 0.2); color: #30d158; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">Active</span>
+                            <span th:unless="${user.enabled}" class="badge-error"
+                                style="background: rgba(255, 59, 48, 0.2); color: #ff3b30; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">Disabled</span>
+                        </td>
+                        <td>
                             <button type="button" class="btn btn-secondary"
                                 style="font-size: 0.75rem; padding: 0.4rem 0.8rem;"
-                                th:attr="onclick=|openEditModal('${user.id}', '${user.username}', '${user.fullName}', '${user.email}', '${user.branch}', '${user.role}')|">
+                                th:attr="onclick=|openEditModal('${user.id}', '${user.username}', '${user.fullName}', '${user.email}', '${user.branch}', '${user.role}', ${user.enabled})|">
                                 Edit
                             </button>
                         </td>
@@ -107,6 +114,15 @@
                     </div>
                 </div>
 
+                <div class="form-group" style="margin-top: 1rem; display: flex; align-items: center; gap: 1rem;">
+                    <label style="margin-bottom: 0;">Account Enabled</label>
+                    <label class="switch">
+                        <input type="hidden" name="enabled" value="false">
+                        <input type="checkbox" id="editEnabled" name="enabled" value="true">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+
                 <div style="margin-top: 1.5rem;">
                     <button type="submit" class="btn" style="width: 100%;"
                         onclick="if(navigator.vibrate) navigator.vibrate(20);">Save Changes</button>
@@ -118,13 +134,14 @@
     <script th:inline="javascript">
         const modal = document.getElementById('editModal');
 
-        function openEditModal(id, username, fullName, email, branch, role) {
+        function openEditModal(id, username, fullName, email, branch, role, enabled) {
             document.getElementById('editId').value = id;
             document.getElementById('editUsername').value = username;
             document.getElementById('editFullName').value = fullName;
             document.getElementById('editEmail').value = email;
             document.getElementById('editBranch').value = branch;
             document.getElementById('editRole').value = role;
+            document.getElementById('editEnabled').checked = enabled;
             document.getElementById('editPassword').value = ''; // Ensure blank on open
 
             modal.style.display = "flex";

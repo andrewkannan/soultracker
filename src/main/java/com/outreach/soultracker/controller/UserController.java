@@ -69,6 +69,9 @@ public class UserController {
                 existingUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
             } // Otherwise leave the existing password alone
 
+            // Account Status
+            existingUser.setEnabled(updatedUser.isEnabled());
+
             userRepository.save(existingUser);
         }
         return "redirect:/users";

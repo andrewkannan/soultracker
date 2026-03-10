@@ -638,6 +638,12 @@
         // Biometric Registration Logic
         const biometricBtn = document.getElementById('enableBiometricBtn');
         if (biometricBtn) {
+            // Helper to handle both standard and URL-safe base64
+            function base64ToBytes(base64) {
+                const binaryString = atob(base64.replace(/-/g, '+').replace(/_/g, '/'));
+                return Uint8Array.from(binaryString, c => c.charCodeAt(0));
+            }
+
             biometricBtn.addEventListener('click', async () => {
                 if (!window.PublicKeyCredential) {
                     alert("Biometric authentication is not supported on this device/browser.");
@@ -649,9 +655,9 @@
                     if (!resp.ok) throw new Error("Could not fetch registration options");
                     const options = await resp.json();
 
-                    // Convert base64url to Uint8Array
-                    options.challenge = Uint8Array.from(atob(options.challenge), c => c.charCodeAt(0));
-                    options.user.id = Uint8Array.from(atob(options.user.id), c => c.charCodeAt(0));
+                    // Convert base64url to Uint8Array using helper
+                    options.challenge = base64ToBytes(options.challenge);
+                    options.user.id = base64ToBytes(options.user.id);
 
                     const credential = await navigator.credentials.create({ publicKey: options });
 

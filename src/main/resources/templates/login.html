@@ -62,76 +62,82 @@
             </button>
         </div>
     </div>
-    <script th:inline="javascript">
-        // Basic WebAuthn Login Trigger
-        document.getElementById('biometricLoginBtn').addEventListener('click', async () => {
-            if (!window.PublicKeyCredential) {
-                alert("Biometric login is not supported on this browser.");
-                return;
-            }
+    // Helper to handle both standard and URL-safe base64
+    function base64ToBytes(base64) {
+    const binaryString = atob(base64.replace(/-/g, '+').replace(/_/g, '/'));
+    return Uint8Array.from(binaryString, c => c.charCodeAt(0));
+    }
 
-            const username = document.getElementById('username').value;
-            if (!username) {
-                alert("Please enter your username first to use biometric login.");
-                return;
-            }
+    // Basic WebAuthn Login Trigger
+    document.getElementById('biometricLoginBtn').addEventListener('click', async () => {
+    if (!window.PublicKeyCredential) {
+    alert("Biometric login is not supported on this browser.");
+    return;
+    }
 
-            try {
-                // 1. Get Authentication Options from Server
-                const resp = await fetch(`/webauthn/login/options?username=${encodeURIComponent(username)}`);
-                if (!resp.ok) throw new Error("Could not fetch login options");
-                const options = await resp.json();
+    const username = document.getElementById('username').value;
+    if (!username) {
+    alert("Please enter your username first to use biometric login.");
+    return;
+    }
 
-                // Convert base64url to Uint8Array
-                const challengeBytes = Uint8Array.from(atob(options.challenge), c => c.charCodeAt(0));
+    try {
+    // 1. Get Authentication Options from Server
+    const resp = await fetch(`/webauthn/login/options?username=${encodeURIComponent(username)}`);
+    if (!resp.ok) throw new Error("Could not fetch login options");
+    const options = await resp.json();
 
-                const credentialOptions = {
-                    publicKey: {
-                        ...options,
-                        challenge: challengeBytes,
-                        allowCredentials: options.allowCredentials.map(c => ({
-                            ...c,
-                            id: Uint8Array.from(atob(c.id), x => x.charCodeAt(0))
-                        }))
-                    }
-                };
+    // Convert base64url to Uint8Array using helper
+    const challengeBytes = base64ToBytes(options.challenge);
 
-                // 2. Trigger Browser Biometric Prompt
-                const assertion = await navigator.credentials.get(credentialOptions);
+    const credentialOptions = {
+    publicKey: {
+    ...options,
+    challenge: challengeBytes,
+    allowCredentials: options.allowCredentials.map(c => ({
+    ...c,
+    id: base64ToBytes(c.id)
+    }))
+    }
+    };
 
-                // 3. Send Assertion back to Server
-                const verifyResp = await fetch('/webauthn/login/finish', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        id: assertion.id,
-                        rawId: btoa(String.fromCharCode(...new Uint8Array(assertion.rawId))),
-                        response: {
-                            clientDataJSON: btoa(String.fromCharCode(...new Uint8Array(assertion.response.clientDataJSON))),
-                            authenticatorData: btoa(String.fromCharCode(...new Uint8Array(assertion.response.authenticatorData))),
-                            signature: btoa(String.fromCharCode(...new Uint8Array(assertion.response.signature))),
-                            userHandle: assertion.response.userHandle ? btoa(String.fromCharCode(...new Uint8Array(assertion.response.userHandle))) : null
-                        },
-                        type: assertion.type,
-                        username: username
-                    })
-                });
+    // 2. Trigger Browser Biometric Prompt
+    const assertion = await navigator.credentials.get(credentialOptions);
 
-                if (verifyResp.ok) {
-                    window.location.href = "/";
-                } else {
-                    const errText = await verifyResp.text();
-                    alert("Biometric verification failed: " + errText);
-                }
-            } catch (err) {
-                console.error(err);
-                alert("Biometric status: " + err.message);
-            }
-        });
+    // 3. Send Assertion back to Server
+    const verifyResp = await fetch('/webauthn/login/finish', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+    id: assertion.id,
+    rawId: btoa(String.fromCharCode(...new Uint8Array(assertion.rawId))),
+    response: {
+    clientDataJSON: btoa(String.fromCharCode(...new Uint8Array(assertion.response.clientDataJSON))),
+    authenticatorData: btoa(String.fromCharCode(...new Uint8Array(assertion.response.authenticatorData))),
+    signature: btoa(String.fromCharCode(...new Uint8Array(assertion.response.signature))),
+    userHandle: assertion.response.userHandle ? btoa(String.fromCharCode(...new
+    Uint8Array(assertion.response.userHandle))) : null
+    },
+    type: assertion.type,
+    username: username
+    })
+    });
 
-        // Trigger biometric automatically if keyboard is not active and session might exist?
-        // Actually, requirement 4: "Once they tap it, offer the Biometric to avoid the keyboard popping up."
-        // We can check if localstorage has a 'preferred_username' and pre-fill or trigger.
+    if (verifyResp.ok) {
+    window.location.href = "/";
+    } else {
+    const errText = await verifyResp.text();
+    alert("Biometric verification failed: " + errText);
+    }
+    } catch (err) {
+    console.error(err);
+    alert("Biometric status: " + err.message);
+    }
+    });
+
+    // Trigger biometric automatically if keyboard is not active and session might exist?
+    // Actually, requirement 4: "Once they tap it, offer the Biometric to avoid the keyboard popping up."
+    // We can check if localstorage has a 'preferred_username' and pre-fill or trigger.
     </script>
     <footer class="app-footer">Powered by CCC JB Bilingual</footer>
 </body>

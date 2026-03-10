@@ -42,7 +42,9 @@ public class WebAuthnController {
         AppUser user = userOpt.get();
         List<Authenticator> authenticators = authenticatorRepository.findAllByUser(user);
 
-        String challenge = Base64.getEncoder().encodeToString(UUID.randomUUID().toString().getBytes());
+        // WebAuthn standard uses URL-safe Base64 without padding
+        String challenge = Base64.getUrlEncoder().withoutPadding()
+                .encodeToString(UUID.randomUUID().toString().getBytes());
         session.setAttribute("auth_challenge_" + username, challenge);
 
         Map<String, Object> options = new HashMap<>();
@@ -107,7 +109,9 @@ public class WebAuthnController {
         String username = ((UserDetails) principal).getUsername();
         AppUser user = userRepository.findByUsername(username).orElseThrow();
 
-        String challenge = Base64.getEncoder().encodeToString(UUID.randomUUID().toString().getBytes());
+        // Use URL-safe Base64 for challenge
+        String challenge = Base64.getUrlEncoder().withoutPadding()
+                .encodeToString(UUID.randomUUID().toString().getBytes());
         session.setAttribute("reg_challenge_" + username, challenge);
 
         Map<String, Object> options = new HashMap<>();
@@ -119,7 +123,8 @@ public class WebAuthnController {
         options.put("rp", rp);
 
         Map<String, Object> userInfo = new HashMap<>();
-        userInfo.put("id", Base64.getEncoder().encodeToString(user.getId().toString().getBytes()));
+        // ID should also be URL-safe Base64
+        userInfo.put("id", Base64.getUrlEncoder().withoutPadding().encodeToString(user.getId().toString().getBytes()));
         userInfo.put("name", user.getUsername());
         userInfo.put("displayName", user.getFullName());
         options.put("user", userInfo);
@@ -149,7 +154,12 @@ public class WebAuthnController {
         // Simplified storage for demo
         Authenticator auth = new Authenticator();
         auth.setCredentialId((String) registration.get("id"));
-        auth.setPublicKey(Base64.getDecoder().decode((String) registration.get("publicKey")));
+
+        // Handle both standard and URL-safe base64 for public key decoding
+        String pubKeyStr = (String) registration.get("publicKey");
+        pubKeyStr = pubKeyStr.replace('-', '+').replace('_', '/');
+        auth.setPublicKey(Base64.getDecoder().decode(pubKeyStr));
+
         auth.setSignCount(0);
         auth.setUser(user);
         auth.setName((String) registration.get("name"));

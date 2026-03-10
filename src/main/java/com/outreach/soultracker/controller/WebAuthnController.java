@@ -10,6 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.HttpSession;
 
 import java.util.*;
 
@@ -33,7 +34,7 @@ public class WebAuthnController {
 
     @GetMapping("/login/options")
     public ResponseEntity<Map<String, Object>> getLoginOptions(@RequestParam String username,
-            jakarta.servlet.http.HttpSession session) {
+            HttpSession session, jakarta.servlet.http.HttpServletRequest request) {
         Optional<AppUser> userOpt = userRepository.findByUsername(username);
         if (userOpt.isEmpty()) {
             return ResponseEntity.status(404).build();
@@ -47,6 +48,7 @@ public class WebAuthnController {
         Map<String, Object> options = new HashMap<>();
         options.put("challenge", challenge);
         options.put("timeout", 60000);
+        options.put("rpId", request.getServerName());
         options.put("userVerification", "preferred");
 
         List<Map<String, String>> allowCredentials = new ArrayList<>();
@@ -63,7 +65,7 @@ public class WebAuthnController {
 
     @PostMapping("/login/finish")
     public ResponseEntity<String> finishLogin(@RequestBody Map<String, Object> assertion,
-            jakarta.servlet.http.HttpSession session) {
+            HttpSession session) {
         String username = (String) assertion.get("username");
         String challenge = (String) session.getAttribute("auth_challenge_" + username);
         if (challenge == null) {
@@ -95,7 +97,8 @@ public class WebAuthnController {
     }
 
     @PostMapping("/register/options")
-    public ResponseEntity<Map<String, Object>> getRegisterOptions(jakarta.servlet.http.HttpSession session) {
+    public ResponseEntity<Map<String, Object>> getRegisterOptions(HttpSession session,
+            jakarta.servlet.http.HttpServletRequest request) {
         // Only authenticated users can register an authenticator
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (!(principal instanceof UserDetails)) {
@@ -112,7 +115,7 @@ public class WebAuthnController {
 
         Map<String, Object> rp = new HashMap<>();
         rp.put("name", "Bilingual Soul Tracker");
-        rp.put("id", "production.up.railway.app"); // Should match actual domain
+        rp.put("id", request.getServerName()); // Use current request domain
         options.put("rp", rp);
 
         Map<String, Object> userInfo = new HashMap<>();
@@ -135,7 +138,7 @@ public class WebAuthnController {
 
     @PostMapping("/register/finish")
     public ResponseEntity<String> finishRegister(@RequestBody Map<String, Object> registration,
-            jakarta.servlet.http.HttpSession session) {
+            HttpSession session) {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (!(principal instanceof UserDetails)) {
             return ResponseEntity.status(401).build();

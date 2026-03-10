@@ -31,7 +31,8 @@ public class AppUser {
     private String role;
 
     private String avatarUrl;
-    private boolean enabled = true;
+    @Column(nullable = true)
+    private Boolean enabled = true;
 
     // Specialist Achievement Trackers
     private Integer totalHealed = 0;
@@ -169,7 +170,7 @@ public class AppUser {
     }
 
     public boolean isEnabled() {
-        return enabled;
+        return enabled == null || enabled;
     }
 
     public void setEnabled(boolean enabled) {

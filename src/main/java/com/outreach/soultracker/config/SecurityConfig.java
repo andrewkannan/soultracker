@@ -55,16 +55,24 @@ public class SecurityConfig {
         @Bean
         public ApplicationRunner initializer(UserRepository userRepository, PasswordEncoder passwordEncoder) {
                 return args -> {
-                        if (userRepository.count() == 0) {
-                                AppUser admin = new AppUser(
-                                                "admin",
-                                                "System Administrator",
-                                                "admin@soultracker.local",
-                                                passwordEncoder.encode("password"),
-                                                "HQ",
-                                                "ROLE_ADMIN");
-                                userRepository.save(admin);
-                        }
+                        userRepository.findByUsername("admin").ifPresentOrElse(
+                                        admin -> {
+                                                if (!admin.isEnabled()) {
+                                                        admin.setEnabled(true);
+                                                        userRepository.save(admin);
+                                                }
+                                        },
+                                        () -> {
+                                                AppUser admin = new AppUser(
+                                                                "admin",
+                                                                "System Administrator",
+                                                                "admin@soultracker.local",
+                                                                passwordEncoder.encode("password"),
+                                                                "HQ",
+                                                                "ROLE_ADMIN");
+                                                admin.setEnabled(true);
+                                                userRepository.save(admin);
+                                        });
                 };
         }
 }

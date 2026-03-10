@@ -73,13 +73,6 @@
                         </div>
                         <div>
                             <span
-                                style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em;">Permission
-                                Level</span>
-                            <div th:text="${user.role == 'ROLE_ADMIN' ? 'Administrator' : 'Evangelist'}"
-                                style="font-weight: 500; font-size: 1.1rem; margin-top: 0.2rem;">Role</div>
-                        </div>
-                        <div>
-                            <span
                                 style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em;">Email
                                 Address</span>
                             <div th:text="${user.email}"

@@ -21,8 +21,8 @@ public class WebAuthnController {
     private final UserRepository userRepository;
     private final UserDetailsService userDetailsService;
 
-    // In-memory challenge store (simplified for demo, use session or redis in prod)
-    private static final Map<String, String> challengeStore = new HashMap<>();
+    // Challenges are now stored in the user's session to prevent memory leaks and
+    // improve security
 
     public WebAuthnController(AuthenticatorRepository authenticatorRepository, UserRepository userRepository,
             UserDetailsService userDetailsService) {
@@ -32,7 +32,8 @@ public class WebAuthnController {
     }
 
     @GetMapping("/login/options")
-    public ResponseEntity<Map<String, Object>> getLoginOptions(@RequestParam String username) {
+    public ResponseEntity<Map<String, Object>> getLoginOptions(@RequestParam String username,
+            jakarta.servlet.http.HttpSession session) {
         Optional<AppUser> userOpt = userRepository.findByUsername(username);
         if (userOpt.isEmpty()) {
             return ResponseEntity.status(404).build();
@@ -41,7 +42,7 @@ public class WebAuthnController {
         List<Authenticator> authenticators = authenticatorRepository.findAllByUser(user);
 
         String challenge = Base64.getEncoder().encodeToString(UUID.randomUUID().toString().getBytes());
-        challengeStore.put(username, challenge);
+        session.setAttribute("auth_challenge_" + username, challenge);
 
         Map<String, Object> options = new HashMap<>();
         options.put("challenge", challenge);
@@ -61,9 +62,10 @@ public class WebAuthnController {
     }
 
     @PostMapping("/login/finish")
-    public ResponseEntity<String> finishLogin(@RequestBody Map<String, Object> assertion) {
+    public ResponseEntity<String> finishLogin(@RequestBody Map<String, Object> assertion,
+            jakarta.servlet.http.HttpSession session) {
         String username = (String) assertion.get("username");
-        String challenge = challengeStore.get(username);
+        String challenge = (String) session.getAttribute("auth_challenge_" + username);
         if (challenge == null) {
             return ResponseEntity.status(400).body("Challenge not found or expired");
         }
@@ -84,7 +86,7 @@ public class WebAuthnController {
                         userDetails, null, userDetails.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
-                challengeStore.remove(username);
+                session.removeAttribute("auth_challenge_" + username);
                 return ResponseEntity.ok("Login successful");
             }
         }
@@ -93,7 +95,7 @@ public class WebAuthnController {
     }
 
     @PostMapping("/register/options")
-    public ResponseEntity<Map<String, Object>> getRegisterOptions() {
+    public ResponseEntity<Map<String, Object>> getRegisterOptions(jakarta.servlet.http.HttpSession session) {
         // Only authenticated users can register an authenticator
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (!(principal instanceof UserDetails)) {
@@ -103,7 +105,7 @@ public class WebAuthnController {
         AppUser user = userRepository.findByUsername(username).orElseThrow();
 
         String challenge = Base64.getEncoder().encodeToString(UUID.randomUUID().toString().getBytes());
-        challengeStore.put(username + "_reg", challenge);
+        session.setAttribute("reg_challenge_" + username, challenge);
 
         Map<String, Object> options = new HashMap<>();
         options.put("challenge", challenge);
@@ -132,7 +134,8 @@ public class WebAuthnController {
     }
 
     @PostMapping("/register/finish")
-    public ResponseEntity<String> finishRegister(@RequestBody Map<String, Object> registration) {
+    public ResponseEntity<String> finishRegister(@RequestBody Map<String, Object> registration,
+            jakarta.servlet.http.HttpSession session) {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (!(principal instanceof UserDetails)) {
             return ResponseEntity.status(401).build();
@@ -149,7 +152,7 @@ public class WebAuthnController {
         auth.setName((String) registration.get("name"));
 
         authenticatorRepository.save(auth);
-        challengeStore.remove(username + "_reg");
+        session.removeAttribute("reg_challenge_" + username);
 
         return ResponseEntity.ok("Registration successful");
     }

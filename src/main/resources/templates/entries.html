@@ -80,6 +80,12 @@
                             <div class="th-content">Branch <span>&#x21D5;</span></div>
                         </th>
                         <th onclick="sortTable(8)" style="cursor: pointer;" class="hide-mobile">
+                            <div class="th-content">Church <span>&#x21D5;</span></div>
+                        </th>
+                        <th onclick="sortTable(9)" style="cursor: pointer;" class="hide-mobile">
+                            <div class="th-content">Ministry <span>&#x21D5;</span></div>
+                        </th>
+                        <th onclick="sortTable(10)" style="cursor: pointer;" class="hide-mobile">
                             <div class="th-content">Date <span>&#x21D5;</span></div>
                         </th>
                         <th>Actions</th>
@@ -121,6 +127,10 @@
                                 th:text="${soul.createdBy != null ? soul.createdBy.fullName : 'System'}">System</td>
                             <td class="hide-mobile"
                                 th:text="${soul.createdBy != null ? soul.createdBy.branch : 'System'}">Branch</td>
+                            <td class="hide-mobile" th:text="${soul.homeChurch != null ? soul.homeChurch : '-'}">Church
+                            </td>
+                            <td class="hide-mobile" th:text="${soul.ministry != null ? soul.ministry : '-'}">Ministry
+                            </td>
                             <td class="hide-mobile" th:text="${#temporals.format(soul.timestamp, 'MM/dd/yy HH:mm')}">
                                 Date</td>
 
@@ -156,10 +166,20 @@
                                         <strong>Tags:</strong>
                                         <span th:if="${soul.isHealed}">Healed, </span>
                                         <span th:if="${soul.isPrayed}">Prayed, </span>
-                                        <span th:if="${soul.isBaptized}">Baptized</span>
+                                        <span th:if="${soul.isBaptized}">Baptized, </span>
+                                        <span th:if="${soul.isPlanted}">Planted</span>
                                     </div>
                                     <div style="grid-column: span 2;"><strong>Location:</strong> <span
                                             th:text="${soul.location}"></span></div>
+                                    <div th:if="${soul.isPlanted}"
+                                        style="grid-column: span 2; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 0.5rem; margin-top: 0.5rem;">
+                                        <strong style="color: var(--accent-main);">Discipleship Progress:</strong><br />
+                                        <strong>Visitation:</strong> <span th:text="${soul.visitationStatus}"></span>
+                                        (by <span th:text="${soul.visitedBy}"></span>)<br />
+                                        <strong>Serving:</strong> <span
+                                            th:text="${soul.isServing ? 'Yes' : 'No'}"></span><br />
+                                        <strong>Notes:</strong> <span th:text="${soul.mentorCaseNotes}"></span>
+                                    </div>
                                     <div style="grid-column: span 2;"><strong>Testimony:</strong> <br /><span
                                             th:text="${soul.testimony}"></span></div>
                                 </div>

@@ -78,6 +78,29 @@
                             </option>
                         </select>
                     </div>
+
+                    <div class="form-group">
+                        <label>Home Church</label>
+                        <select th:field="*{homeChurch}">
+                            <option value="">-- Select Church --</option>
+                            <option value="Selesa Jaya">Selesa Jaya</option>
+                            <option value="Pulai">Pulai</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Ministry</label>
+                        <select th:field="*{ministry}">
+                            <option value="">-- Select Ministry --</option>
+                            <option value="4.2.1 Kids Church">4.2.1 Kids Church</option>
+                            <option value="Reflect">Reflect</option>
+                            <option value="MomentX">MomentX</option>
+                            <option value="Marriage For Life">Marriage For Life</option>
+                            <option value="Incredibles">Incredibles</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -101,6 +124,53 @@
                             </option>
                         </select>
                     </div>
+
+                    <div class="form-group">
+                        <label>Created By</label>
+                        <input type="text" th:value="${soul.createdBy != null ? soul.createdBy.fullName : 'System'}"
+                            readonly="readonly" style="background: rgba(255,255,255,0.05);" />
+                    </div>
+                </div>
+
+                <!-- Discipleship Progress Panel -->
+                <div id="discipleshipPanel"
+                    th:style="${soul.isPlanted} ? 'display: block; margin-top: 2rem;' : 'display: none; margin-top: 2rem;'">
+                    <div
+                        style="border-top: 1px solid var(--glass-border); padding-top: 2rem; margin-top: 1rem; margin-bottom: 1.5rem;">
+                        <h3
+                            style="margin: 0; color: var(--accent-main); font-size: 1.1rem; letter-spacing: 0.05em; text-transform: uppercase;">
+                            Discipleship Progress</h3>
+                    </div>
+
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>Visitation Status</label>
+                            <select th:field="*{visitationStatus}">
+                                <option value="Not Visited">Not Visited</option>
+                                <option value="First Visit">First Visit</option>
+                                <option value="Regular Visit">Regular Visit</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Visited By</label>
+                            <input type="text" th:field="*{visitedBy}" placeholder="Who visited this soul?" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Mentor Case Notes</label>
+                        <textarea th:field="*{mentorCaseNotes}" rows="4"
+                            placeholder="Add timestamped updates on spiritual progress..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label
+                            style="display: flex; align-items: center; gap: 0.8rem; cursor: pointer; user-select: none;">
+                            <input type="checkbox" th:field="*{isServing}"
+                                style="width: 20px; height: 20px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 4px;" />
+                            <span>This soul has started serving in ministry</span>
+                        </label>
+                    </div>
                 </div>
 
                 <div style="display: flex; gap: 1rem;">
@@ -121,6 +191,16 @@
                 // Toggle the boolean string value
                 if (hiddenInput) {
                     hiddenInput.value = this.classList.contains('active') ? 'true' : 'false';
+                }
+
+                // Toggle Discipleship Panel visibility if 'Planted in Church' is clicked
+                if (targetId === 'isPlantedInput') {
+                    const panel = document.getElementById('discipleshipPanel');
+                    if (this.classList.contains('active')) {
+                        panel.style.display = 'block';
+                    } else {
+                        panel.style.display = 'none';
+                    }
                 }
             });
         });

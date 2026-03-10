@@ -152,6 +152,7 @@ public class WebController {
         if (soul.getTimestamp() == null) {
             soul.setTimestamp(existing.getTimestamp());
         }
+        // Retain original createdBy
         soul.setCreatedBy(existing.getCreatedBy());
 
         // Secure advanced fields: only Admin can change Status, Action, Assignment
@@ -160,6 +161,10 @@ public class WebController {
             soul.setNextAction(existing.getNextAction());
             soul.setAssignedTo(existing.getAssignedTo());
         }
+
+        // New fields should bind via @ModelAttribute if present in form,
+        // but we explicitly mention them here for clarity in logic flow.
+        // The Soul object 'soul' already has these fields populated from the form.
 
         soulService.saveSoul(soul);
         return "redirect:/entries";

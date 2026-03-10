@@ -39,6 +39,17 @@ public class Soul {
     private Boolean isBaptized = false;
     private Boolean isPlanted = false;
 
+    // Discipleship & Form Enhancements
+    private String homeChurch;
+    private String ministry;
+    private String visitationStatus = "Not Visited";
+    private String visitedBy;
+
+    @jakarta.persistence.Column(columnDefinition = "TEXT")
+    private String mentorCaseNotes;
+
+    private Boolean isServing = false;
+
     public Soul() {
     }
 
@@ -174,5 +185,53 @@ public class Soul {
 
     public void setIsPlanted(Boolean isPlanted) {
         this.isPlanted = isPlanted;
+    }
+
+    public String getHomeChurch() {
+        return homeChurch;
+    }
+
+    public void setHomeChurch(String homeChurch) {
+        this.homeChurch = homeChurch;
+    }
+
+    public String getMinistry() {
+        return ministry;
+    }
+
+    public void setMinistry(String ministry) {
+        this.ministry = ministry;
+    }
+
+    public String getVisitationStatus() {
+        return visitationStatus;
+    }
+
+    public void setVisitationStatus(String visitationStatus) {
+        this.visitationStatus = visitationStatus;
+    }
+
+    public String getVisitedBy() {
+        return visitedBy;
+    }
+
+    public void setVisitedBy(String visitedBy) {
+        this.visitedBy = visitedBy;
+    }
+
+    public String getMentorCaseNotes() {
+        return mentorCaseNotes;
+    }
+
+    public void setMentorCaseNotes(String mentorCaseNotes) {
+        this.mentorCaseNotes = mentorCaseNotes;
+    }
+
+    public Boolean getIsServing() {
+        return isServing;
+    }
+
+    public void setIsServing(Boolean isServing) {
+        this.isServing = isServing;
     }
 }

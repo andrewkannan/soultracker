@@ -22,13 +22,13 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        String path = uploadDir;
-        if (!path.endsWith("/")) {
-            path += "/";
-        }
+        Path path = Paths.get(uploadDir).toAbsolutePath();
+        String location = path.toUri().toString();
 
-        // Ensure absolute paths are converted to valid file coordinates
-        String location = path.startsWith("/") ? "file:" + path : "file:./" + path;
+        // Spring requires resource locations to end with a slash for directories
+        if (!location.endsWith("/")) {
+            location += "/";
+        }
 
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations(location);

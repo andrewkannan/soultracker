@@ -97,6 +97,7 @@ public class UserController {
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRole("ROLE_EVANGELIST");
+        user.setBranch("JB");
         user.setEnabled(true);
 
         userRepository.save(user);

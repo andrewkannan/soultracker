@@ -47,7 +47,7 @@
                     <a th:href="@{/profile}" class="btn"
                         style="width: 100%; font-size: 0.85rem; text-align: center; padding: 0.6rem;">My Account</a>
                     <a sec:authorize="hasAuthority('ROLE_ADMIN')" th:href="@{/admin/signup-dashboard}" class="btn btn-secondary"
-                        style="width: 100%; font-size: 0.85rem; text-align: center; padding: 0.6rem;">Admin System</a>
+                        style="width: 100%; font-size: 0.85rem; text-align: center; padding: 0.6rem;">Sign Up Dash</a>
                     <form th:action="@{/logout}" method="post" style="margin: 0;">
                         <button type="submit" class="btn btn-secondary"
                             style="width: 100%; font-size: 0.85rem; padding: 0.6rem;">Sign Out</button>

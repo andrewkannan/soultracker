@@ -11,6 +11,7 @@
     <!-- WebSocket libraries -->
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link rel="icon" type="image/x-icon" href="/favicon.png">
 </head>
 
@@ -73,8 +74,15 @@
             <div class="grid-2">
                 <a th:href="@{/add}" class="btn">Add New Soul</a>
                 <a th:href="@{/entries}" class="btn btn-secondary">Review Entries</a>
-                <a sec:authorize="hasAuthority('ROLE_ADMIN')" th:href="@{/users}" class="btn btn-secondary"
-                    style="grid-column: 1 / -1;">Manage Users</a>
+                <a sec:authorize="hasAuthority('ROLE_ADMIN')" th:href="@{/users}" class="btn btn-secondary">Manage Users</a>
+                <button sec:authorize="hasAuthority('ROLE_ADMIN')" id="downloadVidBtn" class="btn btn-secondary" onclick="downloadAnimationVideo()" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; border: 1px solid rgba(255,255,255,0.2);">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Download 1080p Video
+                </button>
             </div>
         </div>
 
@@ -260,6 +268,112 @@
                 }
             };
             window.requestAnimationFrame(step);
+        }
+
+        async function downloadAnimationVideo() {
+            const btn = document.getElementById('downloadVidBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = 'Preparing Recording...';
+            btn.disabled = true;
+
+            // Scroll to top to ensure clean capture
+            window.scrollTo(0, 0);
+
+            // Hide the buttons and header using presentation mode
+            document.body.classList.add('presentation-active');
+
+            // Save original styling
+            const container = document.querySelector('.container');
+            const ogWidth = container.style.width;
+            const ogHeight = container.style.height;
+            const ogMaxWidth = container.style.maxWidth;
+            const ogPadding = container.style.padding;
+            
+            // Force 1920x1080 aspect ratio roughly on the container
+            container.style.width = '1920px';
+            container.style.height = '1080px';
+            container.style.maxWidth = '1920px';
+            container.style.padding = '0';
+
+            // Wait a moment for styles to apply
+            await new Promise(r => setTimeout(r, 100));
+
+            // Set up recording canvas
+            const canvas = document.createElement('canvas');
+            canvas.width = 1920;
+            canvas.height = 1080;
+            const ctx = canvas.getContext('2d');
+            
+            // Fallback background
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fillRect(0, 0, 1920, 1080);
+
+            // Stream and Recorder config (30fps)
+            const stream = canvas.captureStream(30);
+            let mime = '';
+            if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) mime = 'video/webm;codecs=vp9';
+            else if (MediaRecorder.isTypeSupported('video/webm')) mime = 'video/webm';
+            
+            const recorder = mime ? new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 8000000 }) : new MediaRecorder(stream, { videoBitsPerSecond: 8000000 });
+            
+            const chunks = [];
+            recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+            
+            recorder.onstop = () => {
+                const blob = new Blob(chunks, { type: mime || 'video/mp4' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `reach_total_${previousPayload.total}_1080p.webm`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                // Restore original UI
+                document.body.classList.remove('presentation-active');
+                container.style.width = ogWidth;
+                container.style.height = ogHeight;
+                container.style.maxWidth = ogMaxWidth;
+                container.style.padding = ogPadding;
+                
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            };
+
+            recorder.start();
+            let isRecording = true;
+            
+            // Reset and trigger animation to run over 3.5 seconds
+            animateValue("counter", 0, previousPayload.total, 3500);
+
+            // Render DOM to Canvas
+            async function renderFrame() {
+                if (!isRecording) return;
+                try {
+                    const frame = await html2canvas(document.body, {
+                        width: 1920,
+                        height: 1080,
+                        windowWidth: 1920,
+                        windowHeight: 1080,
+                        scale: 1,
+                        logging: false,
+                        useCORS: true,
+                        backgroundColor: '#0a0a0a' // matches --bg-color
+                    });
+                    ctx.drawImage(frame, 0, 0);
+                } catch(e) {
+                    console.error("html2canvas capture error:", e);
+                }
+                if (isRecording) {
+                    requestAnimationFrame(renderFrame);
+                }
+            }
+            renderFrame();
+
+            // End recording after 4.5 seconds (giving 1s buffer at the end)
+            setTimeout(() => {
+                isRecording = false;
+                recorder.stop();
+            }, 4500);
         }
 
         document.addEventListener("DOMContentLoaded", function () {

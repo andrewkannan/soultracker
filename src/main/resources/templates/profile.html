@@ -112,16 +112,16 @@
                 <h3 style="margin-top: 0; margin-bottom: 1.5rem;">Award Shelf</h3>
 
                 <div class="award-grid">
-                    <!-- Badge 1: Silver Initiate (1 Soul) -->
+                    <!-- Badge 1: Bronze Initiate (1 Soul) -->
                     <div th:class="'badge-card ' + (${userTotalSouls >= 1} ? 'unlocked' : 'locked')"
-                        onclick="openBadgeShare('Silver Initiate', 1)">
+                        onclick="openBadgeShare('Bronze Initiate', 1)">
                         <div class="badge-icon silver">
                             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"></path>
                             </svg>
                         </div>
-                        <div class="badge-title">Silver Initiate</div>
+                        <div class="badge-title">Bronze Initiate</div>
                         <div class="badge-req">1 Soul</div>
                     </div>
 
@@ -139,16 +139,16 @@
                         <div class="badge-req">10 Souls</div>
                     </div>
 
-                    <!-- Badge 3: Bronze Ambassador (20 Souls) -->
+                    <!-- Badge 3: Silver Ambassador (20 Souls) -->
                     <div th:class="'badge-card ' + (${userTotalSouls >= 20} ? 'unlocked' : 'locked')"
-                        onclick="openBadgeShare('Bronze Ambassador', 20)">
+                        onclick="openBadgeShare('Silver Ambassador', 20)">
                         <div class="badge-icon bronze">
                             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                             </svg>
                         </div>
-                        <div class="badge-title">Bronze Ambassador</div>
+                        <div class="badge-title">Silver Ambassador</div>
                         <div class="badge-req">20 Souls</div>
                     </div>
 
@@ -496,7 +496,7 @@
                 </div>
             </div>
 
-            <h2 id="shareTitle" style="margin-bottom: 0.5rem;">Silver Initiate</h2>
+            <h2 id="shareTitle" style="margin-bottom: 0.5rem;">Bronze Initiate</h2>
             <p style="color: var(--text-muted); margin-bottom: 2rem;">You've unlocked this milestone!</p>
 
             <a id="whatsappShareBtn" href="#" target="_blank" class="btn"

@@ -118,7 +118,7 @@ public class SoulService {
 
     private void checkMilestones(String username, long previousCount, long newCount) {
         int[] milestones = { 1, 10, 50, 100 };
-        String[] ranks = { "Silver Initiate", "Gold Disciple", "Platinum Ambassador", "Legendary Reaper" };
+        String[] ranks = { "Bronze Initiate", "Gold Disciple", "Platinum Ambassador", "Legendary Reaper" };
 
         for (int i = 0; i < milestones.length; i++) {
             if (previousCount < milestones[i] && newCount >= milestones[i]) {

@@ -75,13 +75,13 @@
                 <a th:href="@{/add}" class="btn">Add New Soul</a>
                 <a th:href="@{/entries}" class="btn btn-secondary">Review Entries</a>
                 <a sec:authorize="hasAuthority('ROLE_ADMIN')" th:href="@{/users}" class="btn btn-secondary">Manage Users</a>
-                <button sec:authorize="hasAuthority('ROLE_ADMIN')" id="downloadVidBtn" class="btn btn-secondary" onclick="downloadAnimationVideo()" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; border: 1px solid rgba(255,255,255,0.2);">
+                <button sec:authorize="hasAuthority('ROLE_ADMIN')" id="downloadImageBtn" class="btn btn-secondary" onclick="downloadCountImage()" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; border: 1px solid rgba(255,255,255,0.2);">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path>
                         <polyline points="7 10 12 15 17 10"></polyline>
                         <line x1="12" y1="15" x2="12" y2="3"></line>
                     </svg>
-                    Download 1080p Video
+                    Download Image
                 </button>
             </div>
         </div>
@@ -270,10 +270,10 @@
             window.requestAnimationFrame(step);
         }
 
-        async function downloadAnimationVideo() {
-            const btn = document.getElementById('downloadVidBtn');
+        async function downloadCountImage() {
+            const btn = document.getElementById('downloadImageBtn');
             const originalText = btn.innerHTML;
-            btn.innerHTML = 'Preparing Recording...';
+            btn.innerHTML = 'Generating Image...';
             btn.disabled = true;
 
             window.scrollTo(0, 0);
@@ -290,46 +290,43 @@
             const ogMaxWidth = containerEle.style.maxWidth;
             const ogPadding = containerEle.style.padding;
             
-            // Force 1920x1080
-            containerEle.style.width = '1920px';
-            containerEle.style.height = '1080px';
-            containerEle.style.maxWidth = '1920px';
+            const isMobile = window.innerWidth <= 768;
+            const targetWidth = isMobile ? 1080 : 1920;
+            const targetHeight = isMobile ? 1920 : 1080;
+
+            // Force target dimensions
+            containerEle.style.width = targetWidth + 'px';
+            containerEle.style.height = targetHeight + 'px';
+            containerEle.style.maxWidth = targetWidth + 'px';
             containerEle.style.padding = '0';
 
             // Wait a moment for styles to apply
             await new Promise(r => setTimeout(r, 200));
 
-            // Set up recording canvas
-            const canvas = document.createElement('canvas');
-            canvas.width = 1920;
-            canvas.height = 1080;
-            const ctx = canvas.getContext('2d', { alpha: false });
-            
-            // Background color
-            ctx.fillStyle = '#0a0a0a';
-            ctx.fillRect(0, 0, 1920, 1080);
-
-            // Stream and Recorder config (30fps)
-            const stream = canvas.captureStream(30);
-            let mime = '';
-            if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) mime = 'video/webm;codecs=vp9';
-            else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) mime = 'video/webm;codecs=vp8';
-            else if (MediaRecorder.isTypeSupported('video/webm')) mime = 'video/webm';
-            
-            const recorder = mime ? new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 8000000 }) : new MediaRecorder(stream, { videoBitsPerSecond: 8000000 });
-            
-            const chunks = [];
-            recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
-            
-            recorder.onstop = () => {
-                const blob = new Blob(chunks, { type: mime || 'video/mp4' });
-                const url = URL.createObjectURL(blob);
+            try {
+                const canvas = await html2canvas(containerEle, {
+                    width: targetWidth,
+                    height: targetHeight,
+                    windowWidth: targetWidth,
+                    windowHeight: targetHeight,
+                    scale: 1,
+                    logging: false,
+                    useCORS: true,
+                    backgroundColor: '#0a0a0a',
+                    // Avoid SVG issues that sometimes cause blank captures
+                    allowTaint: false,
+                 });
+                 
+                const url = canvas.toDataURL("image/png");
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `reach_total_${previousPayload.total}_1080p.webm`;
+                const resolutionStr = isMobile ? '1080x1920' : '1920x1080';
+                a.download = `reach_total_${previousPayload.total}_${resolutionStr}.png`;
                 a.click();
-                URL.revokeObjectURL(url);
-                
+            } catch(e) {
+                console.error("html2canvas capture error:", e);
+                alert("Failed to capture image.");
+            } finally {
                 // Restore original UI
                 document.querySelector('.glass-nav').style.display = '';
                 document.querySelector('.grid-2').style.display = '';
@@ -342,45 +339,7 @@
                 
                 btn.innerHTML = originalText;
                 btn.disabled = false;
-            };
-
-            recorder.start();
-            let isRecording = true;
-            
-            // Re-trigger animation down to 0, then up
-            animateValue("counter", 0, previousPayload.total, 3500);
-
-            // Render DOM to Canvas
-            async function renderFrame() {
-                if (!isRecording) return;
-                try {
-                    const frame = await html2canvas(containerEle, {
-                        width: 1920,
-                        height: 1080,
-                        windowWidth: 1920,
-                        windowHeight: 1080,
-                        scale: 1,
-                        logging: false,
-                        useCORS: true,
-                        backgroundColor: '#0a0a0a',
-                        // Avoid SVG issues that sometimes cause blank captures
-                        allowTaint: false,
-                     });
-                    ctx.drawImage(frame, 0, 0);
-                } catch(e) {
-                    console.error("html2canvas capture error:", e);
-                }
-                if (isRecording) {
-                    requestAnimationFrame(renderFrame);
-                }
             }
-            renderFrame();
-
-            // End recording after 4.5 seconds
-            setTimeout(() => {
-                isRecording = false;
-                recorder.stop();
-            }, 4500);
         }
 
         document.addEventListener("DOMContentLoaded", function () {

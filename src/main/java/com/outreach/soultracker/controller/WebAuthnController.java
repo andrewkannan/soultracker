@@ -118,7 +118,7 @@ public class WebAuthnController {
         options.put("challenge", challenge);
 
         Map<String, Object> rp = new HashMap<>();
-        rp.put("name", "Bilingual Soul Tracker");
+        rp.put("name", "Reach.");
         rp.put("id", request.getServerName()); // Use current request domain
         options.put("rp", rp);
 

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Account - Bilingual Soul Tracker</title>
+    <title>My Account - Reach.</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 
     <!-- WebSocket libraries -->
@@ -15,7 +15,7 @@
 
 <body>
     <div class="glass-nav">
-        <h3 style="margin: 0; font-weight: 700; letter-spacing: -0.02em;">Bilingual Soul Tracker</h3>
+        <h3 style="margin: 0; font-weight: 700; letter-spacing: -0.02em;">Reach.</h3>
         <div class="nav-links">
             <a th:href="@{/}" class="btn btn-secondary">Dashboard</a>
         </div>
@@ -546,7 +546,7 @@
                     document.getElementById('shareIcon').style.transform = 'scale(0)';
                 }
 
-                const text = `I just unlocked the ${rankName} rank on Bilingual Soul Tracker! 🎉`;
+                const text = `I just unlocked the ${rankName} rank on Reach.! 🎉`;
                 document.getElementById('whatsappShareBtn').href = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
 
                 const posterUrl = `/profile/share/poster/${requirement}?rankName=${encodeURIComponent(rankName)}`;
@@ -607,7 +607,7 @@
                         document.getElementById('shareIcon').style.transform = 'scale(0)';
                     }
 
-                    const text = `I just unlocked the ${payload.rank} rank on Bilingual Soul Tracker! 🎉`;
+                    const text = `I just unlocked the ${payload.rank} rank on Reach.! 🎉`;
                     document.getElementById('whatsappShareBtn').href = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
 
                     // Optional: refresh page after a delay to update the progress bar visually

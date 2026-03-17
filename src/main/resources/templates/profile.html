@@ -17,6 +17,7 @@
     <div class="glass-nav">
         <h3 style="margin: 0; font-weight: 700; letter-spacing: -0.02em;">Reach.</h3>
         <div class="nav-links">
+            <a sec:authorize="hasAuthority('ROLE_ADMIN')" th:href="@{/admin/signup-dashboard}" class="btn btn-secondary" style="margin-right: 0.5rem;">Admin System</a>
             <a th:href="@{/}" class="btn btn-secondary">Dashboard</a>
         </div>
     </div>

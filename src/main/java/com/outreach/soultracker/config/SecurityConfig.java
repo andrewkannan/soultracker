@@ -33,9 +33,9 @@ public class SecurityConfig {
                                                               // for production, but simpler for demo/mobile)
                                 .authorizeHttpRequests((requests) -> requests
                                                 .requestMatchers("/", "/css/**", "/js/**", "/favicon.png", "/ws/**",
-                                                                "/error", "/webauthn/**")
+                                                                "/error", "/webauthn/**", "/signup")
                                                 .permitAll()
-                                                .requestMatchers("/users/**", "/adduser").hasRole("ADMIN")
+                                                .requestMatchers("/users/**", "/adduser", "/admin/**").hasRole("ADMIN")
                                                 .anyRequest().authenticated())
                                 .formLogin((form) -> form
                                                 .loginPage("/login")

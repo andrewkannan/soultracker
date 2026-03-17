@@ -25,6 +25,9 @@
             <div th:if="${param.logout}" style="color: #34c759; margin-bottom: 1.5rem; font-size: 0.9rem;">
                 You have been securely logged out.
             </div>
+            <div th:if="${param.registered}" style="color: #34c759; margin-bottom: 1.5rem; font-size: 0.9rem;">
+                Account created successfully! You can now log in.
+            </div>
 
             <form th:action="@{/login}" method="post" id="loginForm">
                 <div class="form-group">
@@ -43,8 +46,12 @@
                     <label for="remember-me" style="margin-bottom: 0; cursor: pointer;">Stay logged in</label>
                 </div>
 
-                <button type="submit" class="btn" style="width: 100%;"
+                <button type="submit" class="btn" style="width: 100%; border-radius: 20px;"
                     onclick="if(navigator.vibrate) navigator.vibrate(20);">Log in</button>
+                    
+                <div style="text-align: center; margin-top: 1.5rem; font-size: 0.85rem;">
+                    First time user? <a th:href="@{/signup}" style="color: var(--text-main); font-weight: 600; text-decoration: none;">Create an account</a>
+                </div>
             </form>
 
             <div style="margin: 1.5rem 0; display: flex; align-items: center; gap: 1rem;">

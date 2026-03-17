@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
+    xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reach. - Admin Signups</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+
+    <!-- WebSocket libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    
+    <!-- QR Code Script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
+    <link rel="icon" type="image/x-icon" href="/favicon.png">
+    <style>
+        .split-dashboard {
+            display: flex;
+            width: 100%;
+            max-width: 1200px;
+            gap: 2rem;
+            align-items: center;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+        
+        @media (max-width: 900px) {
+            .split-dashboard {
+                flex-direction: column;
+            }
+        }
+        
+        .qr-section, .counter-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            min-height: 400px;
+        }
+        
+        #qrcode img {
+            border-radius: 12px;
+            margin-top: 2rem;
+            border: 10px solid white;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="glass-nav">
+        <h3 style="margin: 0; font-weight: 700; letter-spacing: -0.02em;">Reach.</h3>
+        
+        <div class="nav-links">
+            <button onclick="togglePresentationMode()" class="btn btn-secondary"
+                style="padding: 0.5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center;"
+                title="Presentation Mode">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+                </svg>
+            </button>
+            <a th:href="@{/}" class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.5rem 1rem;">Back Home</a>
+        </div>
+    </div>
+
+    <div class="container center-content" style="max-width: 100%;">
+        <h2 style="margin-bottom: 0.5rem; z-index: 10;">Registration Portal</h2>
+        
+        <div class="split-dashboard">
+            <!-- Left Side: QR Code -->
+            <div class="glass-panel qr-section">
+                <h3 style="font-size: 1.8rem; margin-bottom: 0.5rem; text-align: center;">Scan to Join</h3>
+                <p style="color: var(--text-muted); text-align: center; margin-bottom: 1rem;">Create your Evangelist account today.</p>
+                <div id="qrcode"></div>
+            </div>
+            
+            <!-- Right Side: Live Counter -->
+            <div class="glass-panel counter-section">
+                <h3 style="font-size: 1.8rem; margin-bottom: 2rem; text-align: center;">Sign-ups Today</h3>
+                <div class="hero-counter-container">
+                    <div id="signupCounter" class="massive-counter" th:text="${signupsToday}">0</div>
+                    <div id="plusOne" class="plus-one">+1</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        let stompClient = null;
+        let currentCount = /*[[${signupsToday}]]*/ 0;
+
+        function connect() {
+            const socket = new SockJS('/ws');
+            stompClient = Stomp.over(socket);
+            stompClient.debug = null;
+
+            stompClient.connect({}, function (frame) {
+                console.log('Connected: ' + frame);
+                stompClient.subscribe('/topic/userscore', function (message) {
+                    const newCount = parseInt(message.body);
+                    if (newCount > currentCount) {
+                        updateCounter(newCount);
+                    }
+                });
+            }, function (error) {
+                console.error("STOMP error " + error);
+                setTimeout(connect, 5000);
+            });
+        }
+
+        function updateCounter(newCount) {
+            const counter = document.getElementById("signupCounter");
+            const plusOne = document.getElementById("plusOne");
+            
+            animateValue("signupCounter", currentCount, newCount, 600);
+            
+            counter.classList.remove("pulse");
+            plusOne.classList.remove("animate");
+            void counter.offsetWidth;
+            counter.classList.add("pulse");
+            plusOne.classList.add("animate");
+            setTimeout(() => counter.classList.remove("pulse"), 600);
+            
+            currentCount = newCount;
+        }
+
+        function togglePresentationMode() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+                });
+                document.body.classList.add('presentation-active');
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                document.body.classList.remove('presentation-active');
+            }
+        });
+
+        function animateValue(id, start, end, duration) {
+            const obj = document.getElementById(id);
+            if (!obj) return;
+            if (start === end) {
+                obj.innerHTML = end;
+                return;
+            }
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const easeOut = 1 - Math.pow(1 - progress, 4);
+                obj.innerHTML = Math.floor(easeOut * (end - start) + start);
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                } else {
+                    obj.innerHTML = end;
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            // Generate QR Code dynamically pointing to the signup page
+            const signupUrl = window.location.origin + '/signup';
+            new QRCode(document.getElementById("qrcode"), {
+                text: signupUrl,
+                width: 280,
+                height: 280,
+                colorDark : "#0a0a0a",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+
+            connect();
+        });
+    </script>
+</body>
+</html>

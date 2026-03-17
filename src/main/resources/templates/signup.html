@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reach. - Create an Account</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="icon" type="image/x-icon" href="/favicon.png">
+</head>
+
+<body>
+    <div class="glass-nav">
+        <h3 style="margin: 0; font-weight: 700; letter-spacing: -0.02em;">Reach.</h3>
+        <a th:href="@{/login}" class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.5rem 1rem;">Back</a>
+    </div>
+
+    <div class="container center-content">
+        <div class="glass-panel" style="max-width: 450px; width: 100%;">
+            <h2 style="color: var(--text-main); margin-bottom: 1.5rem;">Create your Account</h2>
+
+            <div th:if="${error}" style="color: #ff3b30; margin-bottom: 1.5rem; font-size: 0.9rem;" th:text="${error}">
+                An error occurred.
+            </div>
+
+            <form th:action="@{/signup}" method="post" th:object="${user}">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" th:field="*{username}" required="required" placeholder="Choose a username" autocomplete="off" />
+                </div>
+                
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" th:field="*{fullName}" required="required" placeholder="Your full name" autocomplete="name" />
+                </div>
+
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" th:field="*{email}" placeholder="you@domain.com (Optional)" autocomplete="email" />
+                </div>
+
+                <div class="form-group">
+                    <label>Branch</label>
+                    <select th:field="*{branch}" required="required" style="width: 100%; padding: 0.8rem; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 12px; color: var(--text-main); font-size: 1rem; outline: none;">
+                        <option value="JB" style="background: #121212;">Campus JB</option>
+                        <option value="IP" style="background: #121212;">Campus IP</option>
+                        <option value="SR" style="background: #121212;">Campus SR</option>
+                        <option value="MELAKA" style="background: #121212;">Campus Melaka</option>
+                        <option value="TD" style="background: #121212;">Campus TD</option>
+                        <option value="KL" style="background: #121212;">Campus KL</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" th:field="*{password}" required="required" placeholder="Choose a password" autocomplete="new-password" />
+                </div>
+
+                <button type="submit" class="btn" style="width: 100%; border-radius: 20px; margin-top: 1rem;"
+                    onclick="if(navigator.vibrate) navigator.vibrate(20);">Sign Up</button>
+                    
+                <div style="text-align: center; margin-top: 1.5rem; font-size: 0.85rem; color: var(--text-muted);">
+                    Already have an account? <a th:href="@{/login}" style="color: var(--text-main); font-weight: 600; text-decoration: none;">Log in</a>
+                </div>
+            </form>
+        </div>
+        <footer class="app-footer">Powered by CCC JB Bilingual</footer>
+</body>
+</html>

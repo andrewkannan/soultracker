@@ -8,16 +8,21 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Controller
 public class UserController {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final SimpMessagingTemplate messagingTemplate;
 
-    public UserController(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserController(UserRepository userRepository, PasswordEncoder passwordEncoder, SimpMessagingTemplate messagingTemplate) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.messagingTemplate = messagingTemplate;
     }
 
     @GetMapping("/users")
@@ -75,5 +80,40 @@ public class UserController {
             userRepository.save(existingUser);
         }
         return "redirect:/users";
+    }
+
+    @GetMapping("/signup")
+    public String showSignupForm(Model model) {
+        model.addAttribute("user", new AppUser());
+        return "signup";
+    }
+
+    @PostMapping("/signup")
+    public String signupUser(@ModelAttribute AppUser user, Model model) {
+        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+            model.addAttribute("error", "Username already exists");
+            return "signup";
+        }
+
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRole("ROLE_EVANGELIST");
+        user.setEnabled(true);
+
+        userRepository.save(user);
+
+        // Broadcast new daily count
+        LocalDateTime startOfDay = LocalDateTime.now(ZoneId.systemDefault()).with(java.time.LocalTime.MIN);
+        long newSignupsToday = userRepository.countByCreatedAtAfter(startOfDay);
+        messagingTemplate.convertAndSend("/topic/userscore", newSignupsToday);
+
+        return "redirect:/login?registered=true";
+    }
+
+    @GetMapping("/admin/signup-dashboard")
+    public String showAdminSignupDashboard(Model model) {
+        LocalDateTime startOfDay = LocalDateTime.now(ZoneId.systemDefault()).with(java.time.LocalTime.MIN);
+        long signupsToday = userRepository.countByCreatedAtAfter(startOfDay);
+        model.addAttribute("signupsToday", signupsToday);
+        return "admin-signup";
     }
 }

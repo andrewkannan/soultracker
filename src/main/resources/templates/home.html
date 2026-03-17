@@ -276,35 +276,36 @@
             btn.innerHTML = 'Preparing Recording...';
             btn.disabled = true;
 
-            // Scroll to top to ensure clean capture
             window.scrollTo(0, 0);
 
-            // Hide the buttons and header using presentation mode
-            document.body.classList.add('presentation-active');
+            // Hide the buttons and header
+            document.querySelector('.glass-nav').style.display = 'none';
+            document.querySelector('.grid-2').style.display = 'none';
+            document.querySelector('.app-footer').style.display = 'none';
 
-            // Save original styling
-            const container = document.querySelector('.container');
-            const ogWidth = container.style.width;
-            const ogHeight = container.style.height;
-            const ogMaxWidth = container.style.maxWidth;
-            const ogPadding = container.style.padding;
+            // Target specifically the container
+            const containerEle = document.querySelector('.container');
+            const ogWidth = containerEle.style.width;
+            const ogHeight = containerEle.style.height;
+            const ogMaxWidth = containerEle.style.maxWidth;
+            const ogPadding = containerEle.style.padding;
             
-            // Force 1920x1080 aspect ratio roughly on the container
-            container.style.width = '1920px';
-            container.style.height = '1080px';
-            container.style.maxWidth = '1920px';
-            container.style.padding = '0';
+            // Force 1920x1080
+            containerEle.style.width = '1920px';
+            containerEle.style.height = '1080px';
+            containerEle.style.maxWidth = '1920px';
+            containerEle.style.padding = '0';
 
             // Wait a moment for styles to apply
-            await new Promise(r => setTimeout(r, 100));
+            await new Promise(r => setTimeout(r, 200));
 
             // Set up recording canvas
             const canvas = document.createElement('canvas');
             canvas.width = 1920;
             canvas.height = 1080;
-            const ctx = canvas.getContext('2d');
+            const ctx = canvas.getContext('2d', { alpha: false });
             
-            // Fallback background
+            // Background color
             ctx.fillStyle = '#0a0a0a';
             ctx.fillRect(0, 0, 1920, 1080);
 
@@ -312,6 +313,7 @@
             const stream = canvas.captureStream(30);
             let mime = '';
             if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) mime = 'video/webm;codecs=vp9';
+            else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) mime = 'video/webm;codecs=vp8';
             else if (MediaRecorder.isTypeSupported('video/webm')) mime = 'video/webm';
             
             const recorder = mime ? new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 8000000 }) : new MediaRecorder(stream, { videoBitsPerSecond: 8000000 });
@@ -329,11 +331,14 @@
                 URL.revokeObjectURL(url);
                 
                 // Restore original UI
-                document.body.classList.remove('presentation-active');
-                container.style.width = ogWidth;
-                container.style.height = ogHeight;
-                container.style.maxWidth = ogMaxWidth;
-                container.style.padding = ogPadding;
+                document.querySelector('.glass-nav').style.display = '';
+                document.querySelector('.grid-2').style.display = '';
+                document.querySelector('.app-footer').style.display = '';
+                
+                containerEle.style.width = ogWidth;
+                containerEle.style.height = ogHeight;
+                containerEle.style.maxWidth = ogMaxWidth;
+                containerEle.style.padding = ogPadding;
                 
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -342,14 +347,14 @@
             recorder.start();
             let isRecording = true;
             
-            // Reset and trigger animation to run over 3.5 seconds
+            // Re-trigger animation down to 0, then up
             animateValue("counter", 0, previousPayload.total, 3500);
 
             // Render DOM to Canvas
             async function renderFrame() {
                 if (!isRecording) return;
                 try {
-                    const frame = await html2canvas(document.body, {
+                    const frame = await html2canvas(containerEle, {
                         width: 1920,
                         height: 1080,
                         windowWidth: 1920,
@@ -357,8 +362,10 @@
                         scale: 1,
                         logging: false,
                         useCORS: true,
-                        backgroundColor: '#0a0a0a' // matches --bg-color
-                    });
+                        backgroundColor: '#0a0a0a',
+                        // Avoid SVG issues that sometimes cause blank captures
+                        allowTaint: false,
+                     });
                     ctx.drawImage(frame, 0, 0);
                 } catch(e) {
                     console.error("html2canvas capture error:", e);
@@ -369,7 +376,7 @@
             }
             renderFrame();
 
-            // End recording after 4.5 seconds (giving 1s buffer at the end)
+            // End recording after 4.5 seconds
             setTimeout(() => {
                 isRecording = false;
                 recorder.stop();

@@ -32,7 +32,7 @@ public class SecurityConfig {
                                 .csrf(csrf -> csrf.disable()) // Disable CSRF for easier WebAuthn integration (not ideal
                                                               // for production, but simpler for demo/mobile)
                                 .authorizeHttpRequests((requests) -> requests
-                                                .requestMatchers("/", "/css/**", "/js/**", "/favicon.png", "/ws/**",
+                                                .requestMatchers("/", "/css/**", "/js/**", "/favicon.png", "/og-1.png", "/ws/**",
                                                                 "/error", "/webauthn/**", "/signup")
                                                 .permitAll()
                                                 .requestMatchers("/users/**", "/adduser", "/admin/**").hasRole("ADMIN")

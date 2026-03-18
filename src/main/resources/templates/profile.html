@@ -65,7 +65,7 @@
                             th:text="${user.username}">username</span></p>
 
                     <div class="profile-stats-grid"
-                        style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 12px;">
+                        style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 12px;">
                         <div>
                             <span
                                 style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em;">Branch</span>
@@ -78,6 +78,13 @@
                                 Address</span>
                             <div th:text="${user.email}"
                                 style="font-weight: 500; font-size: 1.1rem; margin-top: 0.2rem;">email@test.com</div>
+                        </div>
+                        <div>
+                            <span
+                                style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em;">Phone
+                                Number</span>
+                            <div th:text="${user.phoneNumber != null ? user.phoneNumber : '-'}"
+                                style="font-weight: 500; font-size: 1.1rem; margin-top: 0.2rem;">-</div>
                         </div>
                     </div>
                 </div>

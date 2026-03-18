@@ -29,6 +29,7 @@
                         <th>Username</th>
                         <th>Full Name</th>
                         <th>Email</th>
+                        <th>Phone</th>
                         <th>Branch</th>
                         <th>Role</th>
                         <th>Status</th>
@@ -41,6 +42,7 @@
                         <td th:text="${user.username}" style="font-weight: 500; color: var(--text-main);">jdoe</td>
                         <td th:text="${user.fullName}">John Doe</td>
                         <td th:text="${user.email}">jdoe@example.com</td>
+                        <td th:text="${user.phoneNumber}">+1234567890</td>
                         <td th:text="${user.branch}">JB</td>
                         <td th:text="${user.role}">ROLE_EVANGELIST</td>
                         <td>
@@ -52,7 +54,7 @@
                         <td>
                             <button type="button" class="btn btn-secondary"
                                 style="font-size: 0.75rem; padding: 0.4rem 0.8rem;"
-                                th:attr="onclick=|openEditModal('${user.id}', '${user.username}', '${user.fullName}', '${user.email}', '${user.branch}', '${user.role}', ${user.enabled})|">
+                                th:attr="onclick=|openEditModal('${user.id}', '${user.username}', '${user.fullName}', '${user.email}', '${user.phoneNumber}', '${user.branch}', '${user.role}', ${user.enabled})|">
                                 Edit
                             </button>
                         </td>
@@ -86,6 +88,11 @@
                 <div class="form-group">
                     <label>Email</label>
                     <input type="email" id="editEmail" name="email" required="required" />
+                </div>
+
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="editPhone" name="phoneNumber" />
                 </div>
 
                 <div class="form-group">
@@ -134,11 +141,15 @@
     <script th:inline="javascript">
         const modal = document.getElementById('editModal');
 
-        function openEditModal(id, username, fullName, email, branch, role, enabled) {
+        function openEditModal(id, username, fullName, email, phoneNumber, branch, role, enabled) {
             document.getElementById('editId').value = id;
             document.getElementById('editUsername').value = username;
             document.getElementById('editFullName').value = fullName;
             document.getElementById('editEmail').value = email;
+            
+            // Handle null phone numbers safely
+            document.getElementById('editPhone').value = (phoneNumber !== 'null' && phoneNumber != null) ? phoneNumber : '';
+            
             document.getElementById('editBranch').value = branch;
             document.getElementById('editRole').value = role;
             document.getElementById('editEnabled').checked = enabled;

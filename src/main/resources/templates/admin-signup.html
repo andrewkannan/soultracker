@@ -83,7 +83,7 @@
             <div class="glass-panel counter-section">
                 <h3 style="font-size: 1.8rem; margin-bottom: 2rem; text-align: center;">Sign-ups Today</h3>
                 <div class="hero-counter-container">
-                    <div id="signupCounter" class="massive-counter" th:text="${signupsToday}">0</div>
+                    <div id="signupCounter" class="massive-counter">0</div>
                     <div id="plusOne" class="plus-one">+1</div>
                 </div>
             </div>
@@ -183,6 +183,9 @@
             });
 
             connect();
+            
+            // Animate signups counter on load
+            animateValue("signupCounter", 0, currentCount, 1000);
         });
     </script>
 </body>

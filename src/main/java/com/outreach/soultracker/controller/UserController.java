@@ -58,6 +58,7 @@ public class UserController {
             existingUser.setUsername(updatedUser.getUsername());
             existingUser.setFullName(updatedUser.getFullName());
             existingUser.setEmail(updatedUser.getEmail());
+            existingUser.setPhoneNumber(updatedUser.getPhoneNumber());
             existingUser.setBranch(updatedUser.getBranch());
 
             // Check Role Prefix

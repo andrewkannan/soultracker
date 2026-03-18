@@ -32,7 +32,10 @@ public class WebConfig implements WebMvcConfigurer {
 
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations(location);
-    }
+
+        // Explicitly map og-1.png to the static directory
+        registry.addResourceHandler("/og-1.png")
+                .addResourceLocations("classpath:/static/");
 
     @Override
     public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {

@@ -42,8 +42,10 @@
             <div th:if="${param.logout}" style="color: #34c759; margin-bottom: 1.5rem; font-size: 0.9rem;">
                 You have been securely logged out.
             </div>
-            <div th:if="${param.registered}" style="color: #34c759; margin-bottom: 1.5rem; font-size: 0.9rem;">
-                Account created successfully! You can now log in.
+            <div th:if="${param.registered}" style="background: rgba(37, 211, 102, 0.1); border: 1px solid rgba(37, 211, 102, 0.3); color: #25D366; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.95rem; text-align: center;">
+                <strong>Welcome to Reach! 🎉</strong><br/>
+                Your account has been successfully created.<br/>
+                Log in below to access your dashboard.
             </div>
 
             <form th:action="@{/login}" method="post" id="loginForm">

@@ -90,6 +90,7 @@ public class UserController {
     }
 
     @PostMapping("/signup")
+    @org.springframework.transaction.annotation.Transactional
     public String signupUser(@ModelAttribute AppUser user, Model model) {
         if (userRepository.findByUsername(user.getUsername()).isPresent()) {
             model.addAttribute("error", "Username already exists");
@@ -101,12 +102,12 @@ public class UserController {
         user.setBranch("JB");
         user.setEnabled(true);
 
-        userRepository.save(user);
+        userRepository.saveAndFlush(user);
 
         // Broadcast new daily count
         LocalDateTime startOfDay = LocalDateTime.now(ZoneId.systemDefault()).with(java.time.LocalTime.MIN);
         long newSignupsToday = userRepository.countByCreatedAtAfter(startOfDay);
-        messagingTemplate.convertAndSend("/topic/userscore", newSignupsToday);
+        messagingTemplate.convertAndSend("/topic/userscore", String.valueOf(newSignupsToday));
 
         return "redirect:/login?registered=true";
     }

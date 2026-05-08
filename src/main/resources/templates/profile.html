@@ -233,13 +233,11 @@
                     Biometric login enabled successfully!
                 </div>
                 
-                <div th:if="${param.2fa != null && param.2fa[0] == 'success'}" 
-                    style="background: rgba(48, 209, 88, 0.1); color: #30d158; padding: 0.8rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.85rem; border: 1px solid rgba(48, 209, 88, 0.2);">
+                <div th:if="${param['2fa'] != null && param['2fa'][0] == 'success'}" style="margin-top: 1rem; padding: 1rem; background: rgba(37, 211, 102, 0.1); border: 1px solid rgba(37, 211, 102, 0.3); border-radius: 8px; color: #25d366; display: flex; align-items: center; gap: 0.5rem;">
                     Two-Factor Authentication enabled successfully!
                 </div>
                 
-                <div th:if="${param.2fa != null && param.2fa[0] == 'disabled'}" 
-                    style="background: rgba(255, 149, 0, 0.1); color: #ff9500; padding: 0.8rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.85rem; border: 1px solid rgba(255, 149, 0, 0.2);">
+                <div th:if="${param['2fa'] != null && param['2fa'][0] == 'error'}" style="margin-top: 1rem; padding: 1rem; background: rgba(255, 71, 87, 0.1); border: 1px solid rgba(255, 71, 87, 0.3); border-radius: 8px; color: #ff4757; display: flex; align-items: center; gap: 0.5rem;">
                     Two-Factor Authentication disabled.
                 </div>
 

@@ -50,7 +50,7 @@ public class WebController {
             java.security.Principal principal) {
 
         if (principal != null) {
-            userRepository.findByEmail(principal.getName()).ifPresent(soul::setCreatedBy);
+            userRepository.findFirstByEmail(principal.getName()).ifPresent(soul::setCreatedBy);
         }
         soulService.saveSoul(soul);
 
@@ -70,7 +70,7 @@ public class WebController {
     @GetMapping("/api/debug/souls")
     @ResponseBody
     public String debugSouls() {
-        AppUser admin = userRepository.findByEmail("admin@soultracker.local").orElse(null);
+        AppUser admin = userRepository.findFirstByEmail("admin@soultracker.local").orElse(null);
         if (admin != null) {
             com.outreach.soultracker.entity.Soul testSoul = new com.outreach.soultracker.entity.Soul(
                     "Test User", "Test Loc", "123", "Test testimony", java.time.LocalDateTime.now());
@@ -93,7 +93,7 @@ public class WebController {
             model.addAttribute("souls", soulService.getAllSouls());
         } else {
             String username = auth.getName();
-            AppUser user = userRepository.findByEmail(username).orElse(null);
+            AppUser user = userRepository.findFirstByEmail(username).orElse(null);
             model.addAttribute("souls", soulService.getSoulsByUser(user));
         }
 

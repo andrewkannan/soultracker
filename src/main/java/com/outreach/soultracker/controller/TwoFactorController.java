@@ -38,7 +38,7 @@ public class TwoFactorController {
     @GetMapping("/setup")
     public String setup(Model model, HttpServletRequest request) throws QrGenerationException {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        AppUser user = userRepository.findByEmail(auth.getName()).orElseThrow();
+        AppUser user = userRepository.findFirstByEmail(auth.getName()).orElseThrow();
 
         SecretGenerator secretGenerator = new DefaultSecretGenerator();
         String secret = secretGenerator.generate();
@@ -68,7 +68,7 @@ public class TwoFactorController {
     @PostMapping("/setup")
     public String confirmSetup(@RequestParam("code") String code, HttpServletRequest request, Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        AppUser user = userRepository.findByEmail(auth.getName()).orElseThrow();
+        AppUser user = userRepository.findFirstByEmail(auth.getName()).orElseThrow();
 
         String secret = (String) request.getSession().getAttribute("temp_2fa_secret");
         if (secret == null) {
@@ -93,7 +93,7 @@ public class TwoFactorController {
     @PostMapping("/disable")
     public String disable2Fa() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        AppUser user = userRepository.findByEmail(auth.getName()).orElseThrow();
+        AppUser user = userRepository.findFirstByEmail(auth.getName()).orElseThrow();
         user.setTwoFactorEnabled(false);
         user.setTwoFactorSecret(null);
         userRepository.save(user);
@@ -112,7 +112,7 @@ public class TwoFactorController {
             return "redirect:/login";
         }
 
-        AppUser user = userRepository.findByEmail(auth.getName()).orElseThrow();
+        AppUser user = userRepository.findFirstByEmail(auth.getName()).orElseThrow();
 
         TimeProvider timeProvider = new SystemTimeProvider();
         CodeVerifier verifier = new DefaultCodeVerifier(new DefaultCodeGenerator(), timeProvider);

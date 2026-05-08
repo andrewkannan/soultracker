@@ -66,7 +66,7 @@ public class SecurityConfig {
                                 System.out.println("Could not drop username column: " + e.getMessage());
                         }
 
-                        userRepository.findByEmail("admin@soultracker.local").ifPresentOrElse(
+                        userRepository.findFirstByEmail("admin@soultracker.local").ifPresentOrElse(
                                         admin -> {
                                                 if (!admin.isEnabled()) {
                                                         admin.setEnabled(true);

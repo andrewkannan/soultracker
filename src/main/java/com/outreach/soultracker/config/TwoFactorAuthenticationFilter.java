@@ -38,7 +38,7 @@ public class TwoFactorAuthenticationFilter extends OncePerRequestFilter {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !auth.getName().equals("anonymousUser")) {
-            AppUser user = userRepository.findByEmail(auth.getName()).orElse(null);
+            AppUser user = userRepository.findFirstByEmail(auth.getName()).orElse(null);
             if (user != null && user.isTwoFactorEnabled()) {
                 Boolean passed2fa = (Boolean) request.getSession().getAttribute("passed_2fa");
                 if (passed2fa == null || !passed2fa) {

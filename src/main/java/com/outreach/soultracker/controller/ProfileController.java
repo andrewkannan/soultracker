@@ -47,7 +47,7 @@ public class ProfileController {
                     .build();
         }
 
-        AppUser user = userRepository.findByEmail(auth.getName()).orElse(null);
+        AppUser user = userRepository.findFirstByEmail(auth.getName()).orElse(null);
         if (user == null) {
             return org.springframework.http.ResponseEntity.notFound().build();
         }
@@ -73,7 +73,7 @@ public class ProfileController {
         }
 
         String username = auth.getName();
-        AppUser user = userRepository.findByEmail(username).orElse(null);
+        AppUser user = userRepository.findFirstByEmail(username).orElse(null);
 
         if (user != null) {
             model.addAttribute("user", user);
@@ -102,7 +102,7 @@ public class ProfileController {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
-        AppUser user = userRepository.findByEmail(username).orElse(null);
+        AppUser user = userRepository.findFirstByEmail(username).orElse(null);
 
         if (user != null) {
             try {

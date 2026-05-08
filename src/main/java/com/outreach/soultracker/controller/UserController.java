@@ -37,7 +37,7 @@ public class UserController {
     @PostMapping("/signup")
     @org.springframework.transaction.annotation.Transactional
     public String signupUser(@ModelAttribute AppUser user, Model model) {
-        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+        if (userRepository.findFirstByEmail(user.getEmail()).isPresent()) {
             model.addAttribute("error", "Email already exists");
             return "signup";
         }

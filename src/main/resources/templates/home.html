@@ -93,7 +93,7 @@
             <div class="grid-2">
                 <a th:href="@{/add}" class="btn">Add New Soul</a>
                 <a th:href="@{/entries}" class="btn btn-secondary">Review Entries</a>
-                <a sec:authorize="hasAuthority('ROLE_ADMIN')" th:href="@{/users}" class="btn btn-secondary">Manage Users</a>
+                <a sec:authorize="hasAuthority('ROLE_ADMIN')" th:href="@{/admin/users}" class="btn btn-secondary">Manage Users</a>
                 <button sec:authorize="hasAuthority('ROLE_ADMIN')" id="downloadImageBtn" class="btn btn-secondary" onclick="downloadCountImage()" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; border: 1px solid rgba(255,255,255,0.2);">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path>

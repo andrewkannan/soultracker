@@ -33,7 +33,7 @@ public class SecurityConfig {
                                                               // for production, but simpler for demo/mobile)
                                 .authorizeHttpRequests((requests) -> requests
                                                 .requestMatchers("/", "/css/**", "/js/**", "/favicon.png", "/og-1.png", "/ws/**",
-                                                                "/error", "/webauthn/**", "/signup")
+                                                                "/error", "/webauthn/**", "/signup", "/login")
                                                 .permitAll()
                                                 .requestMatchers("/users/**", "/adduser", "/admin/**").hasRole("ADMIN")
                                                 .anyRequest().authenticated())

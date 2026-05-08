@@ -13,10 +13,12 @@ public class SoulService {
 
     private final SoulRepository soulRepository;
     private final SimpMessagingTemplate messagingTemplate;
+    private final DynamicEmailService dynamicEmailService;
 
-    public SoulService(SoulRepository soulRepository, SimpMessagingTemplate messagingTemplate) {
+    public SoulService(SoulRepository soulRepository, SimpMessagingTemplate messagingTemplate, DynamicEmailService dynamicEmailService) {
         this.soulRepository = soulRepository;
         this.messagingTemplate = messagingTemplate;
+        this.dynamicEmailService = dynamicEmailService;
     }
 
     public long getTotalCount() {
@@ -99,7 +101,7 @@ public class SoulService {
         // Check user counts after save for milestones
         if (soul.getCreatedBy() != null) {
             long newCount = countSoulsByUser(soul.getCreatedBy());
-            checkMilestones(soul.getCreatedBy().getUsername(), previousCount, newCount);
+            checkMilestones(soul.getCreatedBy(), previousCount, newCount);
 
             if (isNewSoul) {
                 int newHealed = (int) countHealedByUser(soul.getCreatedBy());
@@ -107,7 +109,7 @@ public class SoulService {
                 int newPrayedFor = (int) countPrayedByUser(soul.getCreatedBy());
                 int newPlanted = (int) countPlantedByUser(soul.getCreatedBy());
 
-                checkSpecialistMilestones(soul.getCreatedBy().getUsername(),
+                checkSpecialistMilestones(soul.getCreatedBy(),
                         previousHealed, newHealed,
                         previousBaptized, newBaptized,
                         previousPrayedFor, newPrayedFor,
@@ -116,7 +118,7 @@ public class SoulService {
         }
     }
 
-    private void checkMilestones(String username, long previousCount, long newCount) {
+    private void checkMilestones(com.outreach.soultracker.entity.AppUser user, long previousCount, long newCount) {
         int[] milestones = { 1, 10, 50, 100 };
         String[] ranks = { "Bronze Initiate", "Gold Disciple", "Platinum Ambassador", "Legendary Reaper" };
 
@@ -127,45 +129,53 @@ public class SoulService {
                 payload.put("type", "RANK");
                 payload.put("rank", ranks[i]);
                 payload.put("milestone", String.valueOf(milestones[i]));
-                messagingTemplate.convertAndSend("/topic/achievements/" + username, payload);
+                messagingTemplate.convertAndSend("/topic/achievements/" + user.getUsername(), payload);
+                
+                if (user.getEmail() != null && !user.getEmail().isEmpty()) {
+                    dynamicEmailService.sendAwardNotification(user.getEmail(), user.getUsername(), ranks[i]);
+                }
             }
         }
     }
 
-    private void checkSpecialistMilestones(String username,
+    private void checkSpecialistMilestones(com.outreach.soultracker.entity.AppUser user,
             int prevHealed, int newHealed,
             int prevBaptized, int newBaptized,
             int prevPrayedFor, int newPrayedFor,
             int prevPlanted, int newPlanted) {
 
         // The Healer
-        checkSingleSpecialist(username, prevHealed, newHealed, 5, "Gift of Mercy");
-        checkSingleSpecialist(username, prevHealed, newHealed, 20, "Healing Hand");
-        checkSingleSpecialist(username, prevHealed, newHealed, 50, "Divine Catalyst");
+        checkSingleSpecialist(user, prevHealed, newHealed, 5, "Gift of Mercy");
+        checkSingleSpecialist(user, prevHealed, newHealed, 20, "Healing Hand");
+        checkSingleSpecialist(user, prevHealed, newHealed, 50, "Divine Catalyst");
 
         // The Baptist
-        checkSingleSpecialist(username, prevBaptized, newBaptized, 5, "River Guide");
-        checkSingleSpecialist(username, prevBaptized, newBaptized, 20, "Kingdom Gatekeeper");
-        checkSingleSpecialist(username, prevBaptized, newBaptized, 50, "Living Water Envoy");
+        checkSingleSpecialist(user, prevBaptized, newBaptized, 5, "River Guide");
+        checkSingleSpecialist(user, prevBaptized, newBaptized, 20, "Kingdom Gatekeeper");
+        checkSingleSpecialist(user, prevBaptized, newBaptized, 50, "Living Water Envoy");
 
         // The Intercessor
-        checkSingleSpecialist(username, prevPrayedFor, newPrayedFor, 10, "Prayer Warrior");
-        checkSingleSpecialist(username, prevPrayedFor, newPrayedFor, 50, "Spiritual Pillar");
-        checkSingleSpecialist(username, prevPrayedFor, newPrayedFor, 100, "Shield of Faith");
+        checkSingleSpecialist(user, prevPrayedFor, newPrayedFor, 10, "Prayer Warrior");
+        checkSingleSpecialist(user, prevPrayedFor, newPrayedFor, 50, "Spiritual Pillar");
+        checkSingleSpecialist(user, prevPrayedFor, newPrayedFor, 100, "Shield of Faith");
 
         // The Harvester
-        checkSingleSpecialist(username, prevPlanted, newPlanted, 5, "Seed Sower");
-        checkSingleSpecialist(username, prevPlanted, newPlanted, 10, "Fruit Bearer");
-        checkSingleSpecialist(username, prevPlanted, newPlanted, 20, "Master Harvester");
+        checkSingleSpecialist(user, prevPlanted, newPlanted, 5, "Seed Sower");
+        checkSingleSpecialist(user, prevPlanted, newPlanted, 10, "Fruit Bearer");
+        checkSingleSpecialist(user, prevPlanted, newPlanted, 20, "Master Harvester");
     }
 
-    private void checkSingleSpecialist(String username, int previous, int current, int required, String badgeName) {
+    private void checkSingleSpecialist(com.outreach.soultracker.entity.AppUser user, int previous, int current, int required, String badgeName) {
         if (previous < required && current >= required) {
             Map<String, String> payload = new HashMap<>();
             payload.put("type", "SPECIALIST");
             payload.put("badge", badgeName);
             payload.put("requirement", String.valueOf(required));
-            messagingTemplate.convertAndSend("/topic/achievements/" + username, payload);
+            messagingTemplate.convertAndSend("/topic/achievements/" + user.getUsername(), payload);
+            
+            if (user.getEmail() != null && !user.getEmail().isEmpty()) {
+                dynamicEmailService.sendAwardNotification(user.getEmail(), user.getUsername(), badgeName);
+            }
         }
     }
 }

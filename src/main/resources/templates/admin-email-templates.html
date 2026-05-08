@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<head th:replace="~{admin-layout :: head('Email Templates')}"></head>
+<body class="admin-body">
+    <div th:replace="~{admin-layout :: sidebar}"></div>
+    
+    <div class="admin-main">
+        <div th:replace="~{admin-layout :: topbar}"></div>
+        
+        <h2>Email Templates</h2>
+        <p>Manage system templates like SIGNUP and AWARD. Use {0}, {1} for dynamic arguments (e.g. username).</p>
+
+        <div class="grid-2">
+            <!-- Add Template Form -->
+            <div class="admin-form-container">
+                <h3 style="margin-bottom: 1.5rem;">Add / Update Template</h3>
+                <form th:action="@{/admin/email-templates}" method="post">
+                    <div class="form-group">
+                        <label>Template Key</label>
+                        <select name="templateName" required="required">
+                            <option value="SIGNUP">SIGNUP</option>
+                            <option value="AWARD">AWARD</option>
+                            <option value="OTHER">OTHER</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Subject</label>
+                        <input type="text" name="subject" placeholder="e.g. Welcome to Reach, {0}!" required="required" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Body (HTML Supported)</label>
+                        <textarea name="body" rows="6" placeholder="e.g. <h1>Hello {0}</h1><p>You have earned the {1} badge!</p>" required="required"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn" style="width: 100%;">Save Template</button>
+                </form>
+            </div>
+
+            <!-- List Existing Templates -->
+            <div>
+                <h3 style="margin-bottom: 1.5rem;">Existing Templates</h3>
+                <div th:each="tpl : ${templates}" class="glass-panel" style="margin-bottom: 1rem; padding: 1.5rem; text-align: left;">
+                    <div style="font-size: 0.85rem; color: var(--accent-color); font-weight: 700; margin-bottom: 0.5rem;" th:text="${tpl.templateName}"></div>
+                    <div style="font-weight: 600; margin-bottom: 0.5rem;" th:text="${tpl.subject}"></div>
+                    <div style="font-size: 0.9rem; color: var(--text-muted); white-space: pre-wrap;" th:text="${tpl.body}"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const userProfile = document.querySelector('.user-profile');
+            if (userProfile) {
+                userProfile.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    this.classList.toggle('active');
+                });
+            }
+            document.addEventListener('click', function () {
+                if (userProfile) userProfile.classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>

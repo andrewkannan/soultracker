@@ -1,0 +1,111 @@
+/* Admin Layout Styles */
+body.admin-body {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--bg-color);
+    margin: 0;
+    overflow-x: hidden;
+    flex-direction: row; /* Sidebar left, content right */
+}
+
+/* Sidebar */
+.admin-sidebar {
+    width: 260px;
+    background: rgba(10, 10, 10, 0.8);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border-right: 1px solid var(--glass-border);
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    z-index: 100;
+}
+
+.admin-sidebar .sidebar-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.admin-sidebar h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0;
+    color: var(--text-main);
+}
+
+.admin-sidebar .nav-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: stretch;
+}
+
+.admin-sidebar .nav-item {
+    display: flex;
+    align-items: center;
+    padding: 0.8rem 1rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    border-radius: 12px;
+    transition: background 0.2s ease, color 0.2s ease;
+    font-weight: 500;
+    gap: 0.8rem;
+}
+
+.admin-sidebar .nav-item:hover, .admin-sidebar .nav-item.active {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-main);
+}
+
+/* Main Content Area */
+.admin-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+    width: calc(100% - 260px);
+}
+
+.admin-topbar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 2rem;
+}
+
+/* Form Styles Override for Admin */
+.admin-form-container {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+/* Table Override for Admin */
+.admin-table-container {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    overflow-x: auto;
+}
+
+@media (max-width: 768px) {
+    body.admin-body {
+        flex-direction: column;
+    }
+    .admin-sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        border-right: none;
+        border-bottom: 1px solid var(--glass-border);
+    }
+    .admin-main {
+        width: 100%;
+    }
+}

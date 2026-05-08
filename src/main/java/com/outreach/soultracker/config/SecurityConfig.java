@@ -10,15 +10,19 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.boot.ApplicationRunner;
 import com.outreach.soultracker.entity.AppUser;
 import com.outreach.soultracker.repository.UserRepository;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
         private final com.outreach.soultracker.service.CustomUserDetailsService customUserDetailsService;
+        private final TwoFactorAuthenticationFilter twoFactorAuthenticationFilter;
 
-        public SecurityConfig(com.outreach.soultracker.service.CustomUserDetailsService customUserDetailsService) {
+        public SecurityConfig(com.outreach.soultracker.service.CustomUserDetailsService customUserDetailsService,
+                              TwoFactorAuthenticationFilter twoFactorAuthenticationFilter) {
                 this.customUserDetailsService = customUserDetailsService;
+                this.twoFactorAuthenticationFilter = twoFactorAuthenticationFilter;
         }
 
         @Bean
@@ -41,6 +45,7 @@ public class SecurityConfig {
                                                 .loginPage("/login")
                                                 .permitAll()
                                                 .defaultSuccessUrl("/", true))
+                                .addFilterAfter(twoFactorAuthenticationFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
                                 .rememberMe((remember) -> remember
                                                 .key("uniqueAndSecret")
                                                 .tokenValiditySeconds(86400) // 1 day
@@ -53,8 +58,14 @@ public class SecurityConfig {
         }
 
         @Bean
-        public ApplicationRunner initializer(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        public ApplicationRunner initializer(UserRepository userRepository, PasswordEncoder passwordEncoder, JdbcTemplate jdbcTemplate) {
                 return args -> {
+                        try {
+                                jdbcTemplate.execute("ALTER TABLE app_user DROP COLUMN IF EXISTS username");
+                        } catch (Exception e) {
+                                System.out.println("Could not drop username column: " + e.getMessage());
+                        }
+
                         userRepository.findByEmail("admin@soultracker.local").ifPresentOrElse(
                                         admin -> {
                                                 if (!admin.isEnabled()) {

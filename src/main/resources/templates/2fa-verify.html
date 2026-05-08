@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reach | 2FA Verification</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="icon" type="image/x-icon" href="/favicon.png">
+</head>
+
+<body>
+    <div class="glass-nav">
+        <h3 style="margin: 0; font-weight: 700; letter-spacing: -0.02em;">Reach.</h3>
+    </div>
+
+    <div class="container center-content">
+        <div class="glass-panel" style="max-width: 400px; width: 100%;">
+            <h2 style="color: var(--text-main); margin-bottom: 1rem;">Two-Factor Authentication</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">
+                Please enter the 6-digit code from your Authenticator app.
+            </p>
+
+            <div th:if="${param.error}" style="color: #ff3b30; margin-bottom: 1.5rem; font-size: 0.9rem;">
+                Invalid 2FA code. Please try again.
+            </div>
+
+            <form th:action="@{/2fa/verify}" method="post">
+                <div class="form-group">
+                    <input type="text" name="code" id="code" required="required"
+                        placeholder="000000" autocomplete="one-time-code" maxlength="6"
+                        style="text-align: center; letter-spacing: 0.5rem; font-size: 1.5rem;" />
+                </div>
+
+                <button type="submit" class="btn" style="width: 100%; border-radius: 20px;">Verify</button>
+            </form>
+        </div>
+    </div>
+
+    <footer class="app-footer">Powered by CCC JB Bilingual</footer>
+</body>
+</html>

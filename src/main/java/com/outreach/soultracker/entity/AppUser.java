@@ -41,6 +41,13 @@ public class AppUser {
     private Integer totalPrayedFor = 0;
     private Integer totalPlanted = 0;
 
+    // 2FA Fields
+    @Column(name = "two_factor_secret")
+    private String twoFactorSecret;
+
+    @Column(name = "is_two_factor_enabled")
+    private boolean isTwoFactorEnabled = false;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Authenticator> authenticators = new ArrayList<>();
 
@@ -187,5 +194,21 @@ public class AppUser {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getTwoFactorSecret() {
+        return twoFactorSecret;
+    }
+
+    public void setTwoFactorSecret(String twoFactorSecret) {
+        this.twoFactorSecret = twoFactorSecret;
+    }
+
+    public boolean isTwoFactorEnabled() {
+        return isTwoFactorEnabled;
+    }
+
+    public void setTwoFactorEnabled(boolean isTwoFactorEnabled) {
+        this.isTwoFactorEnabled = isTwoFactorEnabled;
     }
 }

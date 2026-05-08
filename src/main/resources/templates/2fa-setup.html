@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reach | 2FA Setup</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="icon" type="image/x-icon" href="/favicon.png">
+</head>
+
+<body>
+    <div class="glass-nav">
+        <h3 style="margin: 0; font-weight: 700; letter-spacing: -0.02em;">Reach.</h3>
+        <a th:href="@{/profile}" class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.5rem 1rem;">Back</a>
+    </div>
+
+    <div class="container center-content">
+        <div class="glass-panel" style="max-width: 400px; width: 100%;">
+            <h2 style="color: var(--text-main); margin-bottom: 1rem; text-align: center;">Setup 2FA</h2>
+            
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; text-align: center;">
+                Scan the QR code below using Google Authenticator, Authy, or Apple Passwords.
+            </p>
+
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+                <img th:src="${qrCodeImage}" alt="QR Code" style="border-radius: 12px; border: 1px solid var(--glass-border); padding: 10px; background: white;" />
+            </div>
+
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+                <span style="color: var(--text-muted); font-size: 0.85rem;">Or enter code manually:</span><br>
+                <code th:text="${secret}" style="background: rgba(0,0,0,0.2); padding: 5px 10px; border-radius: 6px; font-weight: bold; letter-spacing: 2px;"></code>
+            </div>
+
+            <div th:if="${param.error}" style="color: #ff3b30; margin-bottom: 1.5rem; font-size: 0.9rem; text-align: center;">
+                Invalid 2FA code. Please check your app and try again.
+            </div>
+
+            <form th:action="@{/2fa/setup}" method="post">
+                <div class="form-group">
+                    <label>Verify Setup</label>
+                    <input type="text" name="code" id="code" required="required"
+                        placeholder="000000" autocomplete="one-time-code" maxlength="6"
+                        style="text-align: center; letter-spacing: 0.5rem; font-size: 1.5rem;" />
+                </div>
+
+                <button type="submit" class="btn" style="width: 100%; border-radius: 20px;">Enable 2FA</button>
+            </form>
+        </div>
+    </div>
+
+    <footer class="app-footer">Powered by CCC JB Bilingual</footer>
+</body>
+</html>

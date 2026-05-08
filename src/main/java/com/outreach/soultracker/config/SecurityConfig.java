@@ -70,14 +70,16 @@ public class SecurityConfig {
                                         admin -> {
                                                 if (!admin.isEnabled()) {
                                                         admin.setEnabled(true);
-                                                        userRepository.save(admin);
                                                 }
+                                                // Force reset password to ensure access
+                                                admin.setPassword(passwordEncoder.encode("admin123"));
+                                                userRepository.save(admin);
                                         },
                                         () -> {
                                                 AppUser admin = new AppUser(
                                                                 "System Administrator",
                                                                 "admin@soultracker.local",
-                                                                passwordEncoder.encode("password"),
+                                                                passwordEncoder.encode("admin123"),
                                                                 "HQ",
                                                                 "ROLE_ADMIN");
                                                 admin.setEnabled(true);

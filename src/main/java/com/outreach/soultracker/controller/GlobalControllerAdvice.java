@@ -8,6 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import jakarta.servlet.http.HttpServletRequest;
 
 @ControllerAdvice
 public class GlobalControllerAdvice {
@@ -16,7 +17,9 @@ public class GlobalControllerAdvice {
     private UserRepository userRepository;
 
     @ModelAttribute
-    public void populateGlobalUserAttributes(Model model) {
+    public void populateGlobalUserAttributes(Model model, HttpServletRequest request) {
+        model.addAttribute("requestURI", request.getRequestURI());
+        
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !auth.getName().equals("anonymousUser")) {
             AppUser user = userRepository.findByEmail(auth.getName()).orElse(null);

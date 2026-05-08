@@ -20,10 +20,8 @@ public class AppUser {
     private Long id;
 
     @Column(unique = true, nullable = false)
-    private String username;
-
-    private String fullName;
     private String email;
+    private String fullName;
     private String phoneNumber;
     private String password;
 
@@ -53,8 +51,7 @@ public class AppUser {
     public AppUser() {
     }
 
-    public AppUser(String username, String fullName, String email, String password, String branch, String role) {
-        this.username = username;
+    public AppUser(String fullName, String email, String password, String branch, String role) {
         this.fullName = fullName;
         this.email = email;
         this.password = password;
@@ -70,14 +67,6 @@ public class AppUser {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 
     public String getFullName() {

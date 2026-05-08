@@ -19,7 +19,7 @@ public class GlobalControllerAdvice {
     public void populateGlobalUserAttributes(Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !auth.getName().equals("anonymousUser")) {
-            AppUser user = userRepository.findByUsername(auth.getName()).orElse(null);
+            AppUser user = userRepository.findByEmail(auth.getName()).orElse(null);
             if (user != null) {
                 model.addAttribute("userFullName", user.getFullName());
                 model.addAttribute("userAvatarUrl", user.getAvatarUrl());

@@ -67,7 +67,6 @@ public class AdminController {
     public String editUser(@ModelAttribute AppUser updatedUser) {
         AppUser existingUser = userRepository.findById(updatedUser.getId()).orElse(null);
         if (existingUser != null) {
-            existingUser.setUsername(updatedUser.getUsername());
             existingUser.setFullName(updatedUser.getFullName());
             existingUser.setEmail(updatedUser.getEmail());
             existingUser.setPhoneNumber(updatedUser.getPhoneNumber());

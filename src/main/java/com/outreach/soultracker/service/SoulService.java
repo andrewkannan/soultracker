@@ -129,10 +129,10 @@ public class SoulService {
                 payload.put("type", "RANK");
                 payload.put("rank", ranks[i]);
                 payload.put("milestone", String.valueOf(milestones[i]));
-                messagingTemplate.convertAndSend("/topic/achievements/" + user.getUsername(), payload);
+                messagingTemplate.convertAndSend("/topic/achievements/" + user.getEmail(), payload);
                 
                 if (user.getEmail() != null && !user.getEmail().isEmpty()) {
-                    dynamicEmailService.sendAwardNotification(user.getEmail(), user.getUsername(), ranks[i]);
+                    dynamicEmailService.sendAwardNotification(user.getEmail(), user.getFullName(), ranks[i]);
                 }
             }
         }
@@ -171,10 +171,10 @@ public class SoulService {
             payload.put("type", "SPECIALIST");
             payload.put("badge", badgeName);
             payload.put("requirement", String.valueOf(required));
-            messagingTemplate.convertAndSend("/topic/achievements/" + user.getUsername(), payload);
+            messagingTemplate.convertAndSend("/topic/achievements/" + user.getEmail(), payload);
             
             if (user.getEmail() != null && !user.getEmail().isEmpty()) {
-                dynamicEmailService.sendAwardNotification(user.getEmail(), user.getUsername(), badgeName);
+                dynamicEmailService.sendAwardNotification(user.getEmail(), user.getFullName(), badgeName);
             }
         }
     }

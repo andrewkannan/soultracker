@@ -17,7 +17,6 @@
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Username</th>
                         <th>Full Name</th>
                         <th>Email</th>
                         <th>Branch</th>
@@ -29,9 +28,8 @@
                 <tbody>
                     <tr th:each="user : ${users}">
                         <td th:text="${user.id}">1</td>
-                        <td th:text="${user.username}" style="font-weight: 500; color: var(--text-main);"></td>
                         <td th:text="${user.fullName}"></td>
-                        <td th:text="${user.email}"></td>
+                        <td th:text="${user.email}" style="font-weight: 500; color: var(--text-main);"></td>
                         <td th:text="${user.branch}"></td>
                         <td th:text="${user.role}"></td>
                         <td>
@@ -43,7 +41,7 @@
                         <td>
                             <button type="button" class="btn-secondary"
                                 style="font-size: 0.75rem; padding: 0.4rem 0.8rem; border-radius: 6px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.05); color: white; cursor: pointer;"
-                                th:attr="onclick=|openEditModal('${user.id}', '${user.username}', '${user.fullName}', '${user.email}', '${user.phoneNumber}', '${user.branch}', '${user.role}', ${user.enabled})|">
+                                th:attr="onclick=|openEditModal('${user.id}', '${user.fullName}', '${user.email}', '${user.phoneNumber}', '${user.branch}', '${user.role}', ${user.enabled})|">
                                 Edit
                             </button>
                         </td>
@@ -62,11 +60,6 @@
 
             <form id="editForm" th:action="@{/admin/users/edit}" method="post">
                 <input type="hidden" id="editId" name="id" />
-
-                <div class="form-group">
-                    <label>Username</label>
-                    <input type="text" id="editUsername" name="username" required="required" />
-                </div>
 
                 <div class="form-group">
                     <label>Full Name</label>
@@ -132,11 +125,6 @@
                 Add New User</h2>
 
             <form th:action="@{/admin/users/add}" method="post">
-                <div class="form-group">
-                    <label>Username</label>
-                    <input type="text" name="username" required="required" />
-                </div>
-
                 <div class="form-group">
                     <label>Full Name</label>
                     <input type="text" name="fullName" required="required" />
@@ -232,9 +220,8 @@
         const editModal = document.getElementById('editModal');
         const addModal = document.getElementById('addModal');
 
-        function openEditModal(id, username, fullName, email, phoneNumber, branch, role, enabled) {
+        function openEditModal(id, fullName, email, phoneNumber, branch, role, enabled) {
             document.getElementById('editId').value = id;
-            document.getElementById('editUsername').value = username;
             document.getElementById('editFullName').value = fullName;
             document.getElementById('editEmail').value = email;
             document.getElementById('editPhone').value = (phoneNumber !== 'null' && phoneNumber != null) ? phoneNumber : '';

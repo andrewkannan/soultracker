@@ -22,12 +22,9 @@ public class DataInitializer implements CommandLineRunner {
         if (userRepository.count() == 0) {
             String encodedPassword = passwordEncoder.encode("password");
 
-            AppUser admin = new AppUser("admin", "Admin System", "admin@outreach.com", encodedPassword, "JB",
-                    "ROLE_ADMIN");
-            AppUser moses = new AppUser("moses", "Moses Lim", "moses@outreach.com", encodedPassword, "IP",
-                    "ROLE_EVANGELIST");
-            AppUser joshua = new AppUser("joshua", "Joshua Lee", "joshua@outreach.com", encodedPassword, "JB",
-                    "ROLE_EVANGELIST");
+            AppUser admin = new AppUser("Admin System", "admin@outreach.com", encodedPassword, "JB", "ROLE_ADMIN");
+            AppUser moses = new AppUser("Moses Lim", "moses@outreach.com", encodedPassword, "IP", "ROLE_EVANGELIST");
+            AppUser joshua = new AppUser("Joshua Lee", "joshua@outreach.com", encodedPassword, "JB", "ROLE_EVANGELIST");
 
             userRepository.save(admin);
             userRepository.save(moses);

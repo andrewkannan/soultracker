@@ -55,7 +55,7 @@ public class SecurityConfig {
         @Bean
         public ApplicationRunner initializer(UserRepository userRepository, PasswordEncoder passwordEncoder) {
                 return args -> {
-                        userRepository.findByUsername("admin").ifPresentOrElse(
+                        userRepository.findByEmail("admin@soultracker.local").ifPresentOrElse(
                                         admin -> {
                                                 if (!admin.isEnabled()) {
                                                         admin.setEnabled(true);
@@ -64,7 +64,6 @@ public class SecurityConfig {
                                         },
                                         () -> {
                                                 AppUser admin = new AppUser(
-                                                                "admin",
                                                                 "System Administrator",
                                                                 "admin@soultracker.local",
                                                                 passwordEncoder.encode("password"),

@@ -35,7 +35,7 @@ public class WebAuthnController {
     @GetMapping("/login/options")
     public ResponseEntity<Map<String, Object>> getLoginOptions(@RequestParam String username,
             HttpSession session, jakarta.servlet.http.HttpServletRequest request) {
-        Optional<AppUser> userOpt = userRepository.findByUsername(username);
+        Optional<AppUser> userOpt = userRepository.findByEmail(username);
         if (userOpt.isEmpty()) {
             return ResponseEntity.status(404).build();
         }
@@ -83,7 +83,7 @@ public class WebAuthnController {
 
         if (authOpt.isPresent()) {
             Authenticator auth = authOpt.get();
-            if (auth.getUser().getUsername().equals(username)) {
+            if (auth.getUser().getEmail().equals(username)) {
                 // Success! Log the user in
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
@@ -107,7 +107,7 @@ public class WebAuthnController {
             return ResponseEntity.status(401).build();
         }
         String username = ((UserDetails) principal).getUsername();
-        AppUser user = userRepository.findByUsername(username).orElseThrow();
+        AppUser user = userRepository.findByEmail(username).orElseThrow();
 
         // Use URL-safe Base64 for challenge
         String challenge = Base64.getUrlEncoder().withoutPadding()
@@ -125,7 +125,7 @@ public class WebAuthnController {
         Map<String, Object> userInfo = new HashMap<>();
         // ID should also be URL-safe Base64
         userInfo.put("id", Base64.getUrlEncoder().withoutPadding().encodeToString(user.getId().toString().getBytes()));
-        userInfo.put("name", user.getUsername());
+        userInfo.put("name", user.getEmail());
         userInfo.put("displayName", user.getFullName());
         options.put("user", userInfo);
 
@@ -149,7 +149,7 @@ public class WebAuthnController {
             return ResponseEntity.status(401).build();
         }
         String username = ((UserDetails) principal).getUsername();
-        AppUser user = userRepository.findByUsername(username).orElseThrow();
+        AppUser user = userRepository.findByEmail(username).orElseThrow();
 
         // Simplified storage for demo
         Authenticator auth = new Authenticator();

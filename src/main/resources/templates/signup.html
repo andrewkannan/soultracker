@@ -41,10 +41,7 @@
             </div>
 
             <form th:action="@{/signup}" method="post" th:object="${user}">
-                <div class="form-group">
-                    <label>Username</label>
-                    <input type="text" th:field="*{username}" required="required" placeholder="Choose a username" autocomplete="off" />
-                </div>
+
                 
                 <div class="form-group">
                     <label>Full Name</label>
@@ -53,7 +50,7 @@
 
                 <div class="form-group">
                     <label>Email Address</label>
-                    <input type="email" th:field="*{email}" placeholder="you@domain.com (Optional)" autocomplete="email" />
+                    <input type="email" th:field="*{email}" required="required" placeholder="you@domain.com" autocomplete="email" />
                 </div>
 
                 <div class="form-group">

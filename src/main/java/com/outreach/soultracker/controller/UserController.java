@@ -37,8 +37,8 @@ public class UserController {
     @PostMapping("/signup")
     @org.springframework.transaction.annotation.Transactional
     public String signupUser(@ModelAttribute AppUser user, Model model) {
-        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
-            model.addAttribute("error", "Username already exists");
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            model.addAttribute("error", "Email already exists");
             return "signup";
         }
 
@@ -50,7 +50,7 @@ public class UserController {
         userRepository.saveAndFlush(user);
 
         if (user.getEmail() != null && !user.getEmail().isEmpty()) {
-            dynamicEmailService.sendSignupNotification(user.getEmail(), user.getUsername());
+            dynamicEmailService.sendSignupNotification(user.getEmail(), user.getFullName());
         }
 
         // Broadcast new daily count

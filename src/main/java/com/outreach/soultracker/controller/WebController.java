@@ -50,7 +50,7 @@ public class WebController {
             java.security.Principal principal) {
 
         if (principal != null) {
-            userRepository.findByUsername(principal.getName()).ifPresent(soul::setCreatedBy);
+            userRepository.findByEmail(principal.getName()).ifPresent(soul::setCreatedBy);
         }
         soulService.saveSoul(soul);
 
@@ -70,7 +70,7 @@ public class WebController {
     @GetMapping("/api/debug/souls")
     @ResponseBody
     public String debugSouls() {
-        AppUser admin = userRepository.findByUsername("admin").orElse(null);
+        AppUser admin = userRepository.findByEmail("admin@soultracker.local").orElse(null);
         if (admin != null) {
             com.outreach.soultracker.entity.Soul testSoul = new com.outreach.soultracker.entity.Soul(
                     "Test User", "Test Loc", "123", "Test testimony", java.time.LocalDateTime.now());
@@ -93,7 +93,7 @@ public class WebController {
             model.addAttribute("souls", soulService.getAllSouls());
         } else {
             String username = auth.getName();
-            AppUser user = userRepository.findByUsername(username).orElse(null);
+            AppUser user = userRepository.findByEmail(username).orElse(null);
             model.addAttribute("souls", soulService.getSoulsByUser(user));
         }
 
@@ -119,7 +119,7 @@ public class WebController {
             return "redirect:/entries";
         }
 
-        if (!isAdmin && (soul.getCreatedBy() == null || !soul.getCreatedBy().getUsername().equals(auth.getName()))) {
+        if (!isAdmin && (soul.getCreatedBy() == null || !soul.getCreatedBy().getEmail().equals(auth.getName()))) {
             return "redirect:/entries"; // Prevent unauthorized edits
         }
 
@@ -141,7 +141,7 @@ public class WebController {
             return "redirect:/entries";
 
         if (!isAdmin
-                && (existing.getCreatedBy() == null || !existing.getCreatedBy().getUsername().equals(auth.getName()))) {
+                && (existing.getCreatedBy() == null || !existing.getCreatedBy().getEmail().equals(auth.getName()))) {
             return "redirect:/entries";
         }
 

@@ -533,7 +533,7 @@
 
     <script th:inline="javascript">
         let currentTotalSouls = /*[[${userTotalSouls}]]*/ 0;
-        let username = /*[[${user.username}]]*/ 'user';
+        let username = /*[[${user.email}]]*/ 'user';
 
         function openBadgeShare(rankName, requirement) {
             // Only allow sharing if unlocked

@@ -61,8 +61,8 @@
 
                 <div class="profile-info">
                     <h2 th:text="${user.fullName}" style="margin: 0 0 0.5rem 0;">John Doe</h2>
-                    <p style="color: var(--text-muted); margin: 0 0 1.5rem 0; font-size: 0.95rem;">@<span
-                            th:text="${user.username}">username</span></p>
+                    <p style="color: var(--text-muted); margin: 0 0 1.5rem 0; font-size: 0.95rem;">
+                            <span th:text="${user.email}">user@test.com</span></p>
 
                     <div class="profile-stats-grid"
                         style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 12px;">

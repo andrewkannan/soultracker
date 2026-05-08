@@ -41,8 +41,8 @@ public class AdminController {
 
     @GetMapping
     public String dashboard(Model model) {
-        model.appendAttribute("totalUsers", userRepository.count());
-        model.appendAttribute("totalEvents", eventService.getAllEvents().size());
+        model.addAttribute("totalUsers", userRepository.count());
+        model.addAttribute("totalEvents", eventService.getAllEvents().size());
         return "admin-dashboard";
     }
 
